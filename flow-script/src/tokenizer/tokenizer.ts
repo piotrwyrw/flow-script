@@ -39,7 +39,7 @@ export class Tokenizer {
     }
 
     // Find a token type whose `mapping` directly matches the value
-    private findFirstDirectMappingTokenType(mappingStrategy: TokenMappingStrategy, value: string): TokenType | undefined {
+    private directTokenFor(mappingStrategy: TokenMappingStrategy, value: string): TokenType | undefined {
         for (let typeKey in TokenTypes) {
             if (!TokenTypes.hasOwnProperty(typeKey)) {
                 continue;
@@ -60,7 +60,7 @@ export class Tokenizer {
     }
 
     // Find a token type whose `mapping` matches the largest portion of the value
-    private findBestMatchTokenType(mappingStrategy: TokenMappingStrategy, value: string): [TokenType, string] | undefined {
+    private matchLongestToken(mappingStrategy: TokenMappingStrategy, value: string): [TokenType, string] | undefined {
         type Match = { value: string, type: TokenType }
         let bestMatch: Match | undefined
 
@@ -102,13 +102,13 @@ export class Tokenizer {
 
         // First, check if this token maps directly to an existing token type.
         // This is the optimistic variant.
-        const directMappedType = this.findFirstDirectMappingTokenType('char_seq', token.value)
+        const directMappedType = this.directTokenFor('char_seq', token.value)
         if (directMappedType) {
             return [{...token, type: directMappedType}]
         }
 
-        // If no direct mapping is available, try to progressively split the token into primitive elements
-        const bestMatch = this.findBestMatchTokenType('char_seq', token.value)
+        // If no direct mapping is available, try to recursively split the token into more primitive tokens
+        const bestMatch = this.matchLongestToken('char_seq', token.value)
         if (!bestMatch)
             throw new Error(`Could not handle symbol '${token.value}'`)
 
@@ -130,7 +130,7 @@ export class Tokenizer {
         mapping: {
             // Map identifiers to keywords
             if (token.type === 'Identifier') {
-                const mappedType = this.findFirstDirectMappingTokenType(TokenMappingStrategies.Identifier, token.value)
+                const mappedType = this.directTokenFor(TokenMappingStrategies.Identifier, token.value)
                 if (!mappedType)
                     results.push({...token})
                 else
