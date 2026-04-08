@@ -1,6 +1,5 @@
 import {TokenStream} from "flow-script/dist/syntax/tokenizer/token-stream.js";
 
-
 (() => {
     const stream = new TokenStream("let a = 0;")
     stream.tokenize()
@@ -9,4 +8,5 @@ import {TokenStream} from "flow-script/dist/syntax/tokenizer/token-stream.js";
         console.table(token)
         stream.consume()
     }
+
 })()

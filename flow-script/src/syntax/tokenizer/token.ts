@@ -80,20 +80,30 @@ export const TokenTypes = {
 
 export type TokenType = keyof typeof TokenTypes;
 
+export type IdentifierToken = Token & { type: 'Identifier' }
+
+export type Location = { line: number, column: number }
+
 /**
  * Represents a single lexical token
  */
 export class Token {
-    type: TokenType
-    value: string
-    lineNumber: number
-    columnNumber: number
+    readonly type: TokenType
+    readonly value: string
+    readonly location: Location
 
-    constructor(type: TokenType, value: string, lineNumber: number, columnNumber: number) {
+    constructor(type: TokenType, value: string, lineNumber: number, columnNumber: number);
+    constructor(type: TokenType, value: string, location: Location);
+
+    constructor(type: TokenType, value: string, arg3: number | Location, arg4?: number) {
         this.type = type
         this.value = value
-        this.lineNumber = lineNumber
-        this.columnNumber = columnNumber
+
+        if (typeof arg3 === "number") {
+            this.location = { line: arg3, column: arg4! }
+        } else {
+            this.location = arg3
+        }
     }
 
     static eof(): Token {
@@ -105,6 +115,10 @@ export class Token {
     }
 
     clone(): Token {
-        return new Token(this.type, this.value, this.lineNumber, this.columnNumber)
+        return new Token(this.type, this.value, this.location)
+    }
+
+    isIdentifier(): this is IdentifierToken {
+        return this.type === 'Identifier'
     }
 }
