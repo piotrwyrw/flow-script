@@ -8,14 +8,12 @@ type PendingToken = {
 }
 
 export class Tokenizer {
-    input: string
+    private input: string
+    private tokens: Token[] = []
+    private pending?: PendingToken
 
-    column: number = 1
-    line: number = 1
-
-    tokens: Token[] = []
-
-    pending?: PendingToken
+    private column: number = 1
+    private line: number = 1
 
     constructor(input: string) {
         this.input = input
@@ -179,7 +177,7 @@ export class Tokenizer {
         return char === "\n"
     }
 
-    tokenize() {
+    tokenize(): this {
         let isEscapeActive: boolean = false
         let current: string | undefined = undefined
 
@@ -316,5 +314,11 @@ export class Tokenizer {
 
         // Flush anything that's still pending
         this.flush()
+
+        return this
+    }
+
+    getTokens(): Token[] {
+        return this.tokens
     }
 }

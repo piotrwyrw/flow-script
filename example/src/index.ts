@@ -1,8 +1,12 @@
-import {Tokenizer} from "flow-script";
+import {TokenStream} from "flow-script/dist/syntax/tokenizer/token-stream.js";
 
 
 (() => {
-    const tokenizer = new Tokenizer("let a = 0;")
-    tokenizer.tokenize()
-    console.log(tokenizer.tokens)
+    const stream = new TokenStream("let a = 0;")
+    stream.tokenize()
+    while (stream.isCurrentPresent()) {
+        const token = stream.getCurrent()
+        console.table(token)
+        stream.consume()
+    }
 })()

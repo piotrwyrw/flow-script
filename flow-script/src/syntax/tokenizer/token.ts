@@ -38,6 +38,9 @@ function UnmappedToken(display: string) {
 }
 
 export const TokenTypes = {
+    // Used by the TokenStream to signal the end of the token stream
+    EOF: UnmappedToken("EOF"),
+
     Identifier: UnmappedToken("identifier"),
 
     // Keywords
@@ -93,11 +96,15 @@ export class Token {
         this.columnNumber = columnNumber
     }
 
-    /**
-     * Check if the token is of a specified type by the token type key
-     * @param other The token type key to check against
-     */
-    isOfType(other: TokenType) {
-        return this.type === other
+    static eof(): Token {
+        return new Token('EOF', "", -1, -1)
+    }
+
+    isEof(): boolean {
+        return this.type === 'EOF'
+    }
+
+    clone(): Token {
+        return new Token(this.type, this.value, this.lineNumber, this.columnNumber)
     }
 }
