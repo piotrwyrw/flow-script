@@ -1,4 +1,5 @@
-import {type IdentifierToken, type Location} from "../tokenizer/token";
+import {type IdentifierToken, type Location, Token} from "../tokenizer/token";
+import {syntaxError} from "../../error/FSError";
 
 export namespace AST {
     // === Literal Nodes ===
@@ -46,8 +47,60 @@ export namespace AST {
         | ArrayLiteral
         | VectorLiteral
 
-    // === Remaining Expressions ===
-    export type BinaryExprOperation = "+" | "-" | "*" | "/" | ">" | ">=" | "<" | "<=" | "&&" | "||"
+    export namespace BinaryOp {
+        export type BinaryExprAdditiveOperator =
+            | '+'
+            | '-'
+            | '||'
+
+        export type BinaryExprMultiplicativeOperator =
+            | '*'
+            | '/'
+            | '&&'
+            | '<'
+            | '<='
+            | '>'
+            | '>='
+
+        export type BinaryExprOperator =
+            | BinaryExprAdditiveOperator
+            | BinaryExprMultiplicativeOperator
+
+        export function binaryOperatorFrom(token: Token): BinaryExprOperator | undefined {
+            switch (token.type) {
+                case 'Plus':
+                    return '+';
+                case 'Minus':
+                    return '-';
+                case 'Multiply':
+                    return '*';
+                case 'Divide':
+                    return '/';
+                case 'Greater':
+                    return '>';
+                case 'GreaterEquals':
+                    return '>=';
+                case 'Less':
+                    return '<';
+                case 'LessEquals':
+                    return '<=';
+                case 'And':
+                    return '&&';
+                case 'Or':
+                    return '||';
+                default:
+                    return undefined;
+            }
+        }
+
+        export function isAdditiveOperator(op: BinaryExprOperator): op is BinaryExprAdditiveOperator {
+            return op === '+' || op === '-' || op === '||'
+        }
+
+        export function isMultiplicativeOperator(op: BinaryExprOperator): op is BinaryExprMultiplicativeOperator {
+            return !isAdditiveOperator(op)
+        }
+    }
 
     export type BinaryExpr = {
         kind: "BinaryExpr",
@@ -55,7 +108,7 @@ export namespace AST {
 
         left: Expr,
         right: Expr,
-        operation: BinaryExprOperation
+        operator: BinaryOp.BinaryExprOperator
     }
 
     export type BlockExpr = {

@@ -1,4 +1,5 @@
 import {Token, TokenMappingStrategies, type TokenMappingStrategy, type TokenType, TokenTypes} from "./token";
+import {FSError, FSErrorType, tokenizerError} from "../../error/FSError";
 
 type PendingToken = {
     type: TokenType
@@ -21,7 +22,7 @@ export class Tokenizer {
 
     private consume() {
         if (this.input.length === 0)
-            throw new Error("Could not consume: Tokenizer buffer is empty")
+            tokenizerError("Could not consume: Tokenizer buffer is empty")
 
         this.column++
         this.input = this.input.substring(1)
@@ -108,7 +109,7 @@ export class Tokenizer {
         // If no direct mapping is available, try to recursively split the token into more primitive tokens
         const bestMatch = this.matchLongestToken('char_seq', token.value)
         if (!bestMatch)
-            throw new Error(`Could not handle symbol '${token.value}'`)
+            tokenizerError(`Could not handle symbol '${token.value}'`)
 
         return [{
             type: bestMatch[0],
@@ -183,7 +184,7 @@ export class Tokenizer {
 
         const acquireChar = () => {
             current = this.input[0]
-            if (!current) throw new Error(`Tokenizer encountered undefined character at ${this.line}:${this.column}`)
+            if (!current) tokenizerError(`Tokenizer encountered undefined character at ${this.line}:${this.column}`)
         }
 
         while (this.input.length !== 0) {
@@ -191,19 +192,19 @@ export class Tokenizer {
             const col = this.column
 
             acquireChar()
-            if (!current) throw new Error("Tokenizer encountered unexpected undefined character. This should not happen.")
+            if (!current) tokenizerError("Tokenizer encountered unexpected undefined character. This should not happen.")
 
             // Escape characters in string literals
             if (current === "\\") {
                 if (this.pending?.type !== 'StringLiteral')
-                    throw new Error("Syntax error: Character escapes are only valid inside of string literals.")
+                    tokenizerError("Character escapes are only valid inside of string literals.")
 
                 isEscapeActive = true
                 this.consume()
 
                 acquireChar()
                 if (!current)
-                    throw new Error("Syntax error: Expected character to escape after '\\'.")
+                    tokenizerError("Expected character to escape after '\\'.")
 
             } else {
                 isEscapeActive = false;
@@ -238,7 +239,7 @@ export class Tokenizer {
 
             if (this.pending?.type === 'StringLiteral') {
                 if (this.isNewline(current))
-                    throw new Error(`Line ended before string literal was terminated at ${this.line}:${this.column}`)
+                    tokenizerError(`Line ended before string literal was terminated at ${this.line}:${this.column}`)
 
                 this.pending.value += current
                 this.consume()

@@ -1,12 +1,4 @@
-import {TokenStream} from "flow-script/dist/syntax/tokenizer/token-stream.js";
+import {Parser, TokenStream} from "flow-script";
 
-(() => {
-    const stream = new TokenStream("let a = 0;")
-    stream.tokenize()
-    while (stream.isCurrentPresent()) {
-        const token = stream.getCurrent()
-        console.table(token)
-        stream.consume()
-    }
-
-})()
+const parser = new Parser(new TokenStream("<|1 + 2, 3, 4|>"))
+console.log(JSON.stringify(parser.parse()))

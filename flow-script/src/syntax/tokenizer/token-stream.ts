@@ -1,5 +1,6 @@
 import {Tokenizer} from "./tokenizer";
-import {Token} from "./token";
+import {Location, Token} from "./token";
+import {tokenizerError} from "../../error/FSError";
 
 export class TokenStream {
 
@@ -10,8 +11,8 @@ export class TokenStream {
 
     private tokenIndex: number = 0
 
-    private currentToken: Token = Token.eof()
-    private nextToken: Token = Token.eof()
+    private currentToken: Token = Token.eof(new Location(-1, -1))
+    private nextToken: Token = Token.eof(new Location(-1, -1))
 
     constructor(input: string) {
         this.input = input
@@ -20,7 +21,7 @@ export class TokenStream {
 
     tokenize() {
         if (this.tokens)
-            throw new Error("The Tokenizer of this TokenStream was already previously invoked.")
+            tokenizerError("The Tokenizer of this TokenStream was already previously invoked.")
 
         this.tokens = this.tokenizer.tokenize().getTokens()
 
@@ -34,13 +35,13 @@ export class TokenStream {
 
     consume() {
         if (!this.tokens)
-            throw new Error("Could not consume token: the input of this TokenStream has not been tokenized yet.")
+            tokenizerError("Could not consume token: the input of this TokenStream has not been tokenized yet.")
 
         this.currentToken = this.nextToken.clone()
 
         if (this.tokenIndex < this.tokens.length) {
-            this.nextToken = this.tokens[this.tokenIndex ++]!
-        } else this.nextToken = Token.eof()
+            this.nextToken = this.tokens[this.tokenIndex++]!
+        } else this.nextToken = Token.eof(this.currentToken.location)
     }
 
     getCurrent(): Token {

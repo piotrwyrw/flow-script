@@ -63,10 +63,20 @@ export const TokenTypes = {
     GreaterEquals: CharSeqMappedToken(">="),
     LessEquals: CharSeqMappedToken("<="),
 
-    // Symbols
-    Equals: CharSeqMappedToken("="),
+    // Binary Operators
     Greater: CharSeqMappedToken(">"),
     Less: CharSeqMappedToken("<"),
+    Plus: CharSeqMappedToken("+"),
+    Minus: CharSeqMappedToken("-"),
+    Or: CharSeqMappedToken("||"),
+    Multiply: CharSeqMappedToken("*"),
+    Divide: CharSeqMappedToken("/"),
+    And: CharSeqMappedToken("&&"),
+    VectorStart: CharSeqMappedToken("<|"),
+    VectorEnd: CharSeqMappedToken("|>"),
+
+    // Symbols
+    Equals: CharSeqMappedToken("="),
     Not: CharSeqMappedToken("!"),
     LeftParen: CharSeqMappedToken("("),
     RightParen: CharSeqMappedToken(")"),
@@ -75,14 +85,27 @@ export const TokenTypes = {
     LeftCurly: CharSeqMappedToken("{"),
     RightCurly: CharSeqMappedToken("}"),
     At: CharSeqMappedToken("@"),
-    Semicolon: CharSeqMappedToken(";")
+    Semicolon: CharSeqMappedToken(";"),
+    Comma: CharSeqMappedToken(',')
 } as const;
 
 export type TokenType = keyof typeof TokenTypes;
 
 export type IdentifierToken = Token & { type: 'Identifier' }
 
-export type Location = { line: number, column: number }
+export class Location {
+    line: number
+    column: number
+
+    constructor(line: number, column: number) {
+        this.line = line
+        this.column = column
+    }
+
+    toString() {
+        return `[${this.line}:${this.column}]`
+    }
+}
 
 /**
  * Represents a single lexical token
@@ -100,25 +123,54 @@ export class Token {
         this.value = value
 
         if (typeof arg3 === "number") {
-            this.location = { line: arg3, column: arg4! }
+            this.location = new Location(arg3, arg4!)
         } else {
             this.location = arg3
         }
     }
 
-    static eof(): Token {
-        return new Token('EOF', "", -1, -1)
+    static eof(loc: Location): Token {
+        return new Token('EOF', "", loc)
     }
 
     isEof(): boolean {
         return this.type === 'EOF'
     }
 
-    clone(): Token {
-        return new Token(this.type, this.value, this.location)
+    is(type: TokenType): boolean {
+        return this.type === type
+    }
+
+    isNot(type: TokenType): boolean {
+        return !this.is(type)
     }
 
     isIdentifier(): this is IdentifierToken {
         return this.type === 'Identifier'
+    }
+
+    clone(): Token {
+        return new Token(this.type, this.value, this.location)
+    }
+
+    toString() {
+        if (this.type === 'EOF')
+            return "EOF";
+
+        if (TokenTypes[this.type].mappingStrategy !== 'none') {
+            return `"${this.value}" at ${this.location}`
+        }
+
+        let str = ""
+        if (this.value.length === 0)
+            str = "Empty "
+        str += this.type
+
+        if (this.value.length > 0)
+            str += ` "${this.value}"`
+
+        str += ` at ${this.location}`
+
+        return str
     }
 }
