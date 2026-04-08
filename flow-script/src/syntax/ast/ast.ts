@@ -1,5 +1,4 @@
 import {type IdentifierToken, type Location, Token} from "../tokenizer/token";
-import {syntaxError} from "../../error/FSError";
 
 export namespace AST {
     // === Literal Nodes ===
@@ -182,6 +181,7 @@ export namespace AST {
 
     export type Expr =
         | Literal
+        | BlockExpr
         | BinaryExpr
         | FunctionDefExpr
         | CallExpr
@@ -190,4 +190,31 @@ export namespace AST {
         | Assignment
         | WhileExpr
         | ForExpr
+
+    // Map node types to prettier names. Useful for displaying informative error messages
+    type ExprKindsNameMapping = { [T in Expr['kind']]: string }
+    const ExprPrettyNames: ExprKindsNameMapping = {
+        StringLiteral: "String Literal",
+        NumberLiteral: "Number Literal",
+        BooleanLiteral: "Boolean Literal",
+        ArrayLiteral: "Array Literal",
+        VectorLiteral: "Vector Literal",
+        BinaryExpr: "Binary Expression",
+        BlockExpr: "Block Expression",
+        FunctionDefExpr: "Function Definition Expression",
+        CallExpr: "Call Expression",
+        IfExpr: "If Expression",
+        Variable: "Variable Reference",
+        Assignment: "Variable Assignment",
+        While: "While Expression",
+        For: "For Expression"
+    }
+
+    export function prettyName<T extends Expr>(expr: T): string {
+        return ExprPrettyNames[expr.kind]
+    }
+
+    export type Program = {
+        expressions: Expr[]
+    }
 }

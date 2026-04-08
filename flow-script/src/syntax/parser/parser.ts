@@ -22,11 +22,21 @@ export class Parser {
         this.next = this.stream.getNext()
     }
 
-    parse(): AST.Expr {
-        return this.parseExpression()
+    parse(): AST.Program {
+        const expressions: AST.Expr[] = []
+        while (this.stream.isCurrentPresent()) {
+            const expr = this.parseExpression()
+
+            if (this.current.isNot('Semicolon'))
+                syntaxError(`Expected ';' after ${AST.prettyName(expr)} at ${this.current.location}`)
+            this.consume()
+
+            expressions.push(expr)
+        }
+        return {expressions} as AST.Program
     }
 
-    parseExpression(): AST.Expr {
+    private parseExpression(): AST.Expr {
         let left = this.parseTerm()
 
         let op = AST.BinaryOp.binaryOperatorFrom(this.current)
@@ -51,7 +61,7 @@ export class Parser {
         return left
     }
 
-    parseTerm(): AST.Expr {
+    private parseTerm(): AST.Expr {
         let left = this.parseFactor()
 
         let op = AST.BinaryOp.binaryOperatorFrom(this.current)
@@ -76,7 +86,7 @@ export class Parser {
         return left
     }
 
-    parseFactor(): AST.Expr {
+    private parseFactor(): AST.Expr {
         if (this.current.is('NumberLiteral')) {
             const value = Number.parseFloat(this.current.value)
 
@@ -129,50 +139,57 @@ export class Parser {
             return expr
         }
 
-        // Vector expression <|x, y, z|>
         if (this.current.is('VectorStart')) {
-            const loc = this.current.location
-
-            this.consume()
-
-            // === X Component ===
-            const xExpr = this.parseExpression()
-            if (this.current.isEof())
-                syntaxError(`Reached end of file while parsing vector expression starting on ${loc}`)
-            if (this.current.isNot('Comma'))
-                syntaxError(`Expected ',' after the X component expression of vector starting on ${loc}`)
-            this.consume() // Skip ','
-
-            // === Y Component ===
-            const yExpr = this.parseExpression()
-            if (this.current.isEof())
-                syntaxError(`Reached end of file while parsing vector expression starting on ${loc}`)
-            if (this.current.isNot('Comma'))
-                syntaxError(`Expected ',' after the Y component expression of vector starting on ${loc}`)
-            this.consume() // Skip ','
-
-            // === Z Component ===
-            const zExpr = this.parseExpression()
-            if (this.current.isEof())
-                syntaxError(`Reached end of file while parsing vector expression starting on ${loc}`)
-
-            if (this.current.isNot('VectorEnd'))
-                syntaxError(`Expected '|>' after the Z component expression of vector starting on ${loc}`)
-            this.consume() // Skip '>'
-
-            return {
-                kind: 'VectorLiteral',
-                loc: loc,
-                x: xExpr,
-                y: yExpr,
-                z: zExpr
-            } as AST.VectorLiteral
+            return this.parseVector()
         }
 
         if (this.current.type === 'EOF')
             syntaxError(`File ended while parsing an expression on ${this.current.location}`)
 
         syntaxError(`Unknown expression factor starting with ${this.current}`)
+    }
+
+    // Vector expression <|x, y, z|>
+    private parseVector(): AST.VectorLiteral {
+        if (!this.current.is('VectorStart'))
+            syntaxError("Expected '<|' at the start of a vector")
+
+        const loc = this.current.location
+
+        this.consume()
+
+        // === X Component ===
+        const xExpr = this.parseExpression()
+        if (this.current.isEof())
+            syntaxError(`Reached end of file while parsing vector expression starting on ${loc}`)
+        if (this.current.isNot('Comma'))
+            syntaxError(`Expected ',' after the X component expression of vector starting on ${loc}`)
+        this.consume() // Skip ','
+
+        // === Y Component ===
+        const yExpr = this.parseExpression()
+        if (this.current.isEof())
+            syntaxError(`Reached end of file while parsing vector expression starting on ${loc}`)
+        if (this.current.isNot('Comma'))
+            syntaxError(`Expected ',' after the Y component expression of vector starting on ${loc}`)
+        this.consume() // Skip ','
+
+        // === Z Component ===
+        const zExpr = this.parseExpression()
+        if (this.current.isEof())
+            syntaxError(`Reached end of file while parsing vector expression starting on ${loc}`)
+
+        if (this.current.isNot('VectorEnd'))
+            syntaxError(`Expected '|>' after the Z component expression of vector starting on ${loc}`)
+        this.consume() // Skip '>'
+
+        return {
+            kind: 'VectorLiteral',
+            loc: loc,
+            x: xExpr,
+            y: yExpr,
+            z: zExpr
+        } as AST.VectorLiteral
     }
 
 }
