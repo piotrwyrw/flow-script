@@ -1,4 +1,4 @@
-import {type IdentifierToken, type Location, Token} from "../tokenizer/token";
+import {type IdentifierToken, type Location, Token} from "../tokenizer/token.js";
 
 export namespace AST {
     // === Literal Nodes ===
@@ -121,9 +121,16 @@ export namespace AST {
         kind: "FunctionDefExpr",
         loc: Location,
 
-        name: IdentifierToken,
+        name?: IdentifierToken,
         params: IdentifierToken[],
         block: BlockExpr
+    }
+
+    export type ReturnExpr = {
+        kind: 'ReturnExpr',
+        loc: Location,
+
+        expr?: Expr
     }
 
     export type CallExpr = {
@@ -147,11 +154,18 @@ export namespace AST {
         elseBranch?: BlockExpr
     }
 
-    export type Variable = {
-        kind: "Variable",
+    export type Symbol = {
+        kind: "Symbol",
         loc: Location,
 
         name: IdentifierToken
+    }
+
+    export type VariableDeclaration = {
+        kind: "VariableDeclaration",
+        loc: Location,
+        name: IdentifierToken,
+        value?: Expr
     }
 
     export type Assignment = {
@@ -184,10 +198,12 @@ export namespace AST {
         | BlockExpr
         | BinaryExpr
         | FunctionDefExpr
+        | ReturnExpr
         | CallExpr
-        | IfExpr
-        | Variable
+        | Symbol
+        | VariableDeclaration
         | Assignment
+        | IfExpr
         | WhileExpr
         | ForExpr
 
@@ -199,13 +215,15 @@ export namespace AST {
         BooleanLiteral: "Boolean Literal",
         ArrayLiteral: "Array Literal",
         VectorLiteral: "Vector Literal",
-        BinaryExpr: "Binary Expression",
         BlockExpr: "Block Expression",
+        BinaryExpr: "Binary Expression",
         FunctionDefExpr: "Function Definition Expression",
+        ReturnExpr: "Return Expression",
         CallExpr: "Call Expression",
-        IfExpr: "If Expression",
-        Variable: "Variable Reference",
+        Symbol: "Symbol Reference",
+        VariableDeclaration: "Variable Declaration",
         Assignment: "Variable Assignment",
+        IfExpr: "If Expression",
         While: "While Expression",
         For: "For Expression"
     }

@@ -1,0 +1,19 @@
+let callback = fn(a, b) {
+    1 + 2;
+    let stuff = if 123 {
+        "Hello, World!";
+    } else if true >= 123 {
+        if true {
+            1 + 2 + 3 * 4 * 5 * 6;
+        };
+    } else {
+        "What?`";
+    };
+    "His name is \"Test!\"";
+    while true || false || 1 > 2 {
+        print("Hello, World!");
+    };
+    return 123;
+};
+
+callback("What is this?", "I don't know!" + " - Or do I?");

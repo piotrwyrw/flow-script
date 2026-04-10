@@ -1,5 +1,5 @@
-import {Token, TokenMappingStrategies, type TokenMappingStrategy, type TokenType, TokenTypes} from "./token";
-import {FSError, FSErrorType, tokenizerError} from "../../error/FSError";
+import {Token, TokenMappingStrategies, type TokenMappingStrategy, type TokenType, TokenTypes} from "./token.js";
+import {FSError, FSErrorType, tokenizerError} from "../../error/FSError.js";
 
 type PendingToken = {
     type: TokenType
@@ -255,6 +255,7 @@ export class Tokenizer {
 
             if (this.isNewline(current)) {
                 this.flush()
+                this.consume()
                 this.line++
                 this.column = 1
                 continue;

@@ -46,8 +46,11 @@ export const TokenTypes = {
     // Keywords
     LetKeyword: IdentifierMappedToken("let"),
     FnKeyword: IdentifierMappedToken("fn"),
+    ReturnKeyword: IdentifierMappedToken("return"),
     IfKeyword: IdentifierMappedToken("if"),
     ElseKeyword: IdentifierMappedToken("else"),
+    WhileKeyword: IdentifierMappedToken("while"),
+    ForKeyword: IdentifierMappedToken("for"),
 
     // Literals
     StringLiteral: UnmappedToken("string literal"),

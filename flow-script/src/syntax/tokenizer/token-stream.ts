@@ -1,6 +1,6 @@
-import {Tokenizer} from "./tokenizer";
-import {Location, Token} from "./token";
-import {tokenizerError} from "../../error/FSError";
+import {Tokenizer} from "./tokenizer.js";
+import {Location, Token} from "./token.js";
+import {tokenizerError} from "../../error/FSError.js";
 
 export class TokenStream {
 
@@ -41,7 +41,10 @@ export class TokenStream {
 
         if (this.tokenIndex < this.tokens.length) {
             this.nextToken = this.tokens[this.tokenIndex++]!
-        } else this.nextToken = Token.eof(this.currentToken.location)
+        } else this.nextToken = Token.eof(new Location(
+            this.currentToken.location.line,
+            this.currentToken.location.column + this.currentToken.value.length
+        ))
     }
 
     getCurrent(): Token {
