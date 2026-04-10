@@ -1,39 +1,14 @@
 import type {TokenStream} from "../tokenizer/token-stream.js";
 import {AST} from "../ast/ast.js";
-import {type IdentifierToken, type Token, type TokenType, TokenTypes} from "../tokenizer/token.js";
+import {type TokenType, TokenTypes} from "../tokenizer/token-type.js";
 import {syntaxError} from "../../error/FSError.js";
 import assert from "node:assert/strict";
-
-type ParserFn = () => AST.Expr
-
-const ParserFunctionRegistry = {
-    exprFacParsers: new Map<TokenType, ParserFn>()
-}
-
-function FactorParser(detectionToken: TokenType) {
-    return (value: ParserFn, context: ClassMethodDecoratorContext) => {
-        if (ParserFunctionRegistry.exprFacParsers.has(detectionToken)) {
-            throw new Error(`A factor parser for an expression starting with '${detectionToken}' was already registered.`)
-        }
-
-        ParserFunctionRegistry.exprFacParsers.set(detectionToken, value)
-    }
-}
-
-function findFactorParser(current: TokenType): ParserFn | undefined {
-    for (const [tok, fn] of ParserFunctionRegistry.exprFacParsers) {
-        if (tok !== current)
-            continue;
-
-        return fn
-    }
-
-    return undefined
-}
-
+import {type IdentifierToken, Token} from "../tokenizer/token.js";
+import {FactorParser, findFactorParser, type ParserFunction} from "./parser-registry.js";
+import {type BinaryOperatorDescriptor, BinaryOperatorGroups, BinaryOperatorDescriptors} from "./operators.js";
 
 export class Parser {
-    private readonly exprFacParsers = new Map<TokenType, ParserFn>()
+    private readonly exprFacParsers = new Map<TokenType, ParserFunction>()
 
     private stream: TokenStream
 
@@ -123,7 +98,7 @@ export class Parser {
 
     private parseExpression(): AST.Expr {
         const loc = this.current.location
-        const expr = this.parseAdditiveExpression()
+        const expr = this.parseBinaryExpression()
         if (this.current.is('LeftParen')) {
             const args: AST.Expr[] = this.parseCommaSeparated('LeftParen', 'RightParen', this.parseExpression)
             return {kind: 'CallExpr', loc, callee: expr, args}
@@ -131,39 +106,32 @@ export class Parser {
         return expr
     }
 
-    private parseAdditiveExpression(): AST.Expr {
-        let left = this.parseTerm()
-
-        let op = AST.BinaryOp.binaryOperatorFrom(this.current)
-        if (!op)
-            return left;
-
-        while (op && AST.BinaryOp.isAdditiveOperator(op)) {
-            this.consume() // Skip the operator
-
-            const right = this.parseTerm()
-            left = {kind: 'BinaryExpr', loc: left.loc, operator: op, left: left, right: right}
-
-            op = AST.BinaryOp.binaryOperatorFrom(this.current)
-        }
-
-        return left
-    }
-
-    private parseTerm(): AST.Expr {
+    private parseBinaryExpression(minPrecedence: number = 0): AST.Expr {
         let left = this.parseFactor()
 
-        let op = AST.BinaryOp.binaryOperatorFrom(this.current)
-        if (!op)
-            return left;
+        let lastDescriptor: BinaryOperatorDescriptor | undefined = undefined
 
-        while (op && AST.BinaryOp.isMultiplicativeOperator(op)) {
-            this.consume() // Skip the operator
+        while (true) {
+            const op = AST.BinaryOp.binaryOperatorFrom(this.current)
+            if (!op)
+                break
 
-            const right = this.parseFactor()
-            left = {kind: 'BinaryExpr', loc: left.loc, operator: op, left: left, right: right} as AST.BinaryExpr
+            const descriptor = BinaryOperatorDescriptors[op]
+            const precedence = descriptor.precedence
 
-            op = AST.BinaryOp.binaryOperatorFrom(this.current)
+            if (precedence < minPrecedence) break;
+
+            if (lastDescriptor && lastDescriptor.group === descriptor.group && !BinaryOperatorGroups[lastDescriptor.group].allowChaining) {
+                syntaxError(`Chaining ${descriptor.group.toLowerCase()} operators in an expression is not allowed. Failed on ${this.current.location}`)
+            }
+
+            lastDescriptor = descriptor
+
+            this.consume()
+
+            const right = this.parseBinaryExpression(precedence + 1)
+
+            left = {kind: 'BinaryExpr', loc: left.loc, operator: op, left, right}
         }
 
         return left

@@ -1,5 +1,6 @@
-import {Token, TokenMappingStrategies, type TokenMappingStrategy, type TokenType, TokenTypes} from "./token.js";
-import {FSError, FSErrorType, tokenizerError} from "../../error/FSError.js";
+import {TokenMappingStrategies, type TokenMappingStrategy, type TokenType, TokenTypes} from "./token-type.js";
+import {tokenizerError} from "../../error/FSError.js";
+import {Token} from "./token.js";
 
 type PendingToken = {
     type: TokenType
@@ -29,12 +30,7 @@ export class Tokenizer {
     }
 
     private createTokenFrom(token: PendingToken): Token {
-        return new Token(
-            token.type,
-            token.value,
-            token.line,
-            token.col
-        )
+        return Token.create(token.type, token.value, token.line, token.col)
     }
 
     // Find a token type whose `mapping` directly matches the value

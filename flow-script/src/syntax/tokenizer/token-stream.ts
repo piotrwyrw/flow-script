@@ -1,6 +1,7 @@
 import {Tokenizer} from "./tokenizer.js";
-import {Location, Token} from "./token.js";
 import {tokenizerError} from "../../error/FSError.js";
+import {Token} from "./token.js";
+import {Location} from "./location.js";
 
 export class TokenStream {
 

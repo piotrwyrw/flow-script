@@ -1,4 +1,5 @@
-import {type IdentifierToken, type Location, Token} from "../tokenizer/token.js";
+import {type IdentifierToken, Token} from "../tokenizer/token.js";
+import {Location} from "../tokenizer/location.js";
 
 export namespace AST {
     // === Literal Nodes ===
@@ -47,12 +48,10 @@ export namespace AST {
         | VectorLiteral
 
     export namespace BinaryOp {
-        export type BinaryExprAdditiveOperator =
+        export type BinaryExprOperator =
             | '+'
             | '-'
             | '||'
-
-        export type BinaryExprMultiplicativeOperator =
             | '*'
             | '/'
             | '&&'
@@ -60,10 +59,8 @@ export namespace AST {
             | '<='
             | '>'
             | '>='
-
-        export type BinaryExprOperator =
-            | BinaryExprAdditiveOperator
-            | BinaryExprMultiplicativeOperator
+            | '=='
+            | '!='
 
         export function binaryOperatorFrom(token: Token): BinaryExprOperator | undefined {
             switch (token.type) {
@@ -87,17 +84,13 @@ export namespace AST {
                     return '&&';
                 case 'Or':
                     return '||';
+                case 'DoubleEquals':
+                    return '==';
+                case 'NotEquals':
+                    return '!=';
                 default:
                     return undefined;
             }
-        }
-
-        export function isAdditiveOperator(op: BinaryExprOperator): op is BinaryExprAdditiveOperator {
-            return op === '+' || op === '-' || op === '||'
-        }
-
-        export function isMultiplicativeOperator(op: BinaryExprOperator): op is BinaryExprMultiplicativeOperator {
-            return !isAdditiveOperator(op)
         }
     }
 
