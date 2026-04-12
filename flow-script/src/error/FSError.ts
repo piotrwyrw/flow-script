@@ -1,6 +1,7 @@
 export enum FSErrorType {
     Tokenizer = "Tokenizer Error",
-    Syntax = "Syntax Error"
+    Syntax = "Syntax Error",
+    Runtime = "Runtime Error"
 }
 
 export class FSError extends Error {
@@ -21,4 +22,8 @@ export function tokenizerError(message: string): never {
 
 export function syntaxError(message: string): never {
     throw new FSError(FSErrorType.Syntax, message)
+}
+
+export function runtimeError(message: string): never {
+    throw new FSError(FSErrorType.Runtime, message)
 }

@@ -92,20 +92,20 @@ export class Tokenizer {
 
     private processGenericSymbolToken(token: PendingToken): PendingToken[] {
         // This should never happen, but let's cover for it anyway
-        if (token.type !== 'GenericSymbol')
+        if (token.type !== "GenericSymbol")
             return [{...token}]
 
         // First, check if this token maps directly to an existing token type.
         // This is the optimistic variant.
-        const directMappedType = this.directTokenFor('char_seq', token.value)
+        const directMappedType = this.directTokenFor("char_seq", token.value)
         if (directMappedType) {
             return [{...token, type: directMappedType}]
         }
 
         // If no direct mapping is available, try to recursively split the token into more primitive tokens
-        const bestMatch = this.matchLongestToken('char_seq', token.value)
+        const bestMatch = this.matchLongestToken("char_seq", token.value)
         if (!bestMatch)
-            tokenizerError(`Could not handle symbol '${token.value}'`)
+            tokenizerError(`Could not handle symbol "${token.value}"`)
 
         return [{
             type: bestMatch[0],
@@ -124,7 +124,7 @@ export class Tokenizer {
 
         mapping: {
             // Map identifiers to keywords
-            if (token.type === 'Identifier') {
+            if (token.type === "Identifier") {
                 const mappedType = this.directTokenFor(TokenMappingStrategies.Identifier, token.value)
                 if (!mappedType)
                     results.push({...token})
@@ -134,7 +134,7 @@ export class Tokenizer {
             }
 
             // Map generic symbols to the proper types
-            if (token.type === 'GenericSymbol') {
+            if (token.type === "GenericSymbol") {
                 results.push(...this.processGenericSymbolToken(token))
                 break mapping;
             }
@@ -192,7 +192,7 @@ export class Tokenizer {
 
             // Escape characters in string literals
             if (current === "\\") {
-                if (this.pending?.type !== 'StringLiteral')
+                if (this.pending?.type !== "StringLiteral")
                     tokenizerError("Character escapes are only valid inside of string literals.")
 
                 isEscapeActive = true
@@ -200,17 +200,17 @@ export class Tokenizer {
 
                 acquireChar()
                 if (!current)
-                    tokenizerError("Expected character to escape after '\\'.")
+                    tokenizerError("Expected character to escape after \"\\\".")
 
             } else {
                 isEscapeActive = false;
             }
 
             // String literals
-            if (current === '"') {
-                if (this.pending?.type === 'StringLiteral') {
+            if (current === "\"") {
+                if (this.pending?.type === "StringLiteral") {
                     if (isEscapeActive) {
-                        this.pending.value += '"'
+                        this.pending.value += "\""
                         this.consume()
                         continue;
                     }
@@ -224,8 +224,8 @@ export class Tokenizer {
                     this.consume()
 
                     this.pending = {
-                        type: 'StringLiteral',
-                        value: '',
+                        type: "StringLiteral",
+                        value: "",
                         line: line,
                         col: col,
                     }
@@ -233,7 +233,7 @@ export class Tokenizer {
                 }
             }
 
-            if (this.pending?.type === 'StringLiteral') {
+            if (this.pending?.type === "StringLiteral") {
                 if (this.isNewline(current))
                     tokenizerError(`Line ended before string literal was terminated at ${this.line}:${this.column}`)
 
@@ -258,14 +258,14 @@ export class Tokenizer {
             }
 
             if (this.isDigit(current)) {
-                if (this.pending?.type === 'NumberLiteral') {
+                if (this.pending?.type === "NumberLiteral") {
                     this.pending.value += current
                     this.consume()
                 } else {
                     this.flush()
                     this.consume()
                     this.pending = {
-                        type: 'NumberLiteral',
+                        type: "NumberLiteral",
                         value: current,
                         line: line,
                         col: col
@@ -275,14 +275,14 @@ export class Tokenizer {
             }
 
             if (this.isIdentifierCharacter(current)) {
-                if (this.pending?.type === 'Identifier') {
+                if (this.pending?.type === "Identifier") {
                     this.pending.value += current
                     this.consume()
                 } else {
                     this.flush()
                     this.consume()
                     this.pending = {
-                        type: 'Identifier',
+                        type: "Identifier",
                         value: current,
                         line: line,
                         col: col
@@ -292,11 +292,11 @@ export class Tokenizer {
             }
 
             // At this point, the token is assumed to be a symbol
-            if (this.pending?.type !== 'GenericSymbol') {
+            if (this.pending?.type !== "GenericSymbol") {
                 this.flush()
                 this.consume()
                 this.pending = {
-                    type: 'GenericSymbol',
+                    type: "GenericSymbol",
                     value: current,
                     line: line,
                     col: col

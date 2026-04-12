@@ -49,45 +49,45 @@ export namespace AST {
 
     export namespace BinaryOp {
         export type BinaryExprOperator =
-            | '+'
-            | '-'
-            | '||'
-            | '*'
-            | '/'
-            | '&&'
-            | '<'
-            | '<='
-            | '>'
-            | '>='
-            | '=='
-            | '!='
+            | "+"
+            | "-"
+            | "||"
+            | "*"
+            | "/"
+            | "&&"
+            | "<"
+            | "<="
+            | ">"
+            | ">="
+            | "=="
+            | "!="
 
         export function binaryOperatorFrom(token: Token): BinaryExprOperator | undefined {
             switch (token.type) {
-                case 'Plus':
-                    return '+';
-                case 'Minus':
-                    return '-';
-                case 'Multiply':
-                    return '*';
-                case 'Divide':
-                    return '/';
-                case 'Greater':
-                    return '>';
-                case 'GreaterEquals':
-                    return '>=';
-                case 'Less':
-                    return '<';
-                case 'LessEquals':
-                    return '<=';
-                case 'And':
-                    return '&&';
-                case 'Or':
-                    return '||';
-                case 'DoubleEquals':
-                    return '==';
-                case 'NotEquals':
-                    return '!=';
+                case "Plus":
+                    return "+";
+                case "Minus":
+                    return "-";
+                case "Multiply":
+                    return "*";
+                case "Divide":
+                    return "/";
+                case "Greater":
+                    return ">";
+                case "GreaterEquals":
+                    return ">=";
+                case "Less":
+                    return "<";
+                case "LessEquals":
+                    return "<=";
+                case "And":
+                    return "&&";
+                case "Or":
+                    return "||";
+                case "DoubleEquals":
+                    return "==";
+                case "NotEquals":
+                    return "!=";
                 default:
                     return undefined;
             }
@@ -120,7 +120,7 @@ export namespace AST {
     }
 
     export type ReturnExpr = {
-        kind: 'ReturnExpr',
+        kind: "ReturnExpr",
         loc: Location,
 
         expr?: Expr
@@ -186,6 +186,21 @@ export namespace AST {
         body: BlockExpr
     }
 
+    export type TrueExpr = {
+        kind: "True",
+        loc: Location
+    }
+
+    export type FalseExpr = {
+        kind: "False",
+        loc: Location
+    }
+
+    export type UnitExpr = {
+        kind: "Unit",
+        loc: Location
+    }
+
     export type Expr =
         | Literal
         | BlockExpr
@@ -199,9 +214,12 @@ export namespace AST {
         | IfExpr
         | WhileExpr
         | ForExpr
+        | TrueExpr
+        | FalseExpr
+        | UnitExpr
 
     // Map node types to prettier names. Useful for displaying informative error messages
-    type ExprKindsNameMapping = { [T in Expr['kind']]: string }
+    type ExprKindsNameMapping = { [T in Expr["kind"]]: string }
     const ExprPrettyNames: ExprKindsNameMapping = {
         StringLiteral: "String Literal",
         NumberLiteral: "Number Literal",
@@ -218,7 +236,10 @@ export namespace AST {
         Assignment: "Variable Assignment",
         IfExpr: "If Expression",
         While: "While Expression",
-        For: "For Expression"
+        For: "For Expression",
+        True: "True",
+        False: "False",
+        Unit: "Unit"
     }
 
     export function prettyName<T extends Expr>(expr: T): string {

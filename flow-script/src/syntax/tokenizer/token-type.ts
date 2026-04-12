@@ -51,6 +51,9 @@ export const TokenTypes = {
     ElseKeyword: IdentifierMappedToken("else"),
     WhileKeyword: IdentifierMappedToken("while"),
     ForKeyword: IdentifierMappedToken("for"),
+    TrueKeyword: IdentifierMappedToken("true"),
+    FalseKeyword: IdentifierMappedToken("false"),
+    UnitKeyword: IdentifierMappedToken("unit"),
 
     // Literals
     StringLiteral: UnmappedToken("string literal"),
@@ -89,7 +92,7 @@ export const TokenTypes = {
     RightCurly: CharSeqMappedToken("}"),
     At: CharSeqMappedToken("@"),
     Semicolon: CharSeqMappedToken(";"),
-    Comma: CharSeqMappedToken(',')
+    Comma: CharSeqMappedToken(",")
 } as const;
 
 export type TokenType = keyof typeof TokenTypes;

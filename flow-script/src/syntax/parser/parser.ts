@@ -4,8 +4,8 @@ import {type TokenType, TokenTypes} from "../tokenizer/token-type.js";
 import {syntaxError} from "../../error/FSError.js";
 import assert from "node:assert/strict";
 import {type IdentifierToken, Token} from "../tokenizer/token.js";
-import {FactorParser, findFactorParser, type ParserFunction} from "./parser-registry.js";
-import {type BinaryOperatorDescriptor, BinaryOperatorGroups, BinaryOperatorDescriptors} from "./operators.js";
+import {RegisterParser, findFactorParser, type ParserFunction} from "./parser-registry.js";
+import {type BinaryOperatorDescriptor, BinaryOperatorDescriptors, BinaryOperatorGroups} from "./operators.js";
 
 export class Parser {
     private readonly exprFacParsers = new Map<TokenType, ParserFunction>()
@@ -33,7 +33,7 @@ export class Parser {
         while (this.stream.isCurrentPresent()) {
             const expr = this.parseExpression()
 
-            this.expect('Semicolon')
+            this.expect("Semicolon")
             this.consume()
 
             expressions.push(expr)
@@ -51,13 +51,13 @@ export class Parser {
                 isExpected = true
         })
 
-        // Everything's fine
+        // Everything"s fine
         if (isExpected)
             return
 
-        const actual = this.current.is('EOF')
+        const actual = this.current.is("EOF")
             ? "but reached end of file" :
-            this.current.is('Identifier')
+            this.current.is("Identifier")
                 ? `got identifier "${this.current.value}"`
                 : `got ${this.current.type} "${this.current.value}"`
 
@@ -84,9 +84,9 @@ export class Parser {
             const entry = fn()
             entries.push(entry)
 
-            this.expect('Comma', terminatingToken)
-            if (this.current.is('Comma')) {
-                this.consume() // Skip ','
+            this.expect("Comma", terminatingToken)
+            if (this.current.is("Comma")) {
+                this.consume() // Skip ","
             }
         }
 
@@ -99,9 +99,9 @@ export class Parser {
     private parseExpression(): AST.Expr {
         const loc = this.current.location
         const expr = this.parseBinaryExpression()
-        if (this.current.is('LeftParen')) {
-            const args: AST.Expr[] = this.parseCommaSeparated('LeftParen', 'RightParen', this.parseExpression)
-            return {kind: 'CallExpr', loc, callee: expr, args}
+        if (this.current.is("LeftParen")) {
+            const args: AST.Expr[] = this.parseCommaSeparated("LeftParen", "RightParen", this.parseExpression)
+            return {kind: "CallExpr", loc, callee: expr, args}
         }
         return expr
     }
@@ -131,7 +131,7 @@ export class Parser {
 
             const right = this.parseBinaryExpression(precedence + 1)
 
-            left = {kind: 'BinaryExpr', loc: left.loc, operator: op, left, right}
+            left = {kind: "BinaryExpr", loc: left.loc, operator: op, left, right}
         }
 
         return left
@@ -140,28 +140,28 @@ export class Parser {
     private parseBlock(): AST.BlockExpr {
         const loc = this.current.location
 
-        this.expect('LeftCurly')
+        this.expect("LeftCurly")
         this.consume() // Skip '{'
 
         const body: AST.Expr[] = []
 
-        while (this.stream.isCurrentPresent() && this.current.isNot('RightCurly')) {
+        while (this.stream.isCurrentPresent() && this.current.isNot("RightCurly")) {
             const expr = this.parseExpression()
 
             body.push(expr)
 
-            this.expect('Semicolon')
+            this.expect("Semicolon")
             this.consume()
         }
 
-        this.expect('RightCurly')
+        this.expect("RightCurly")
         this.consume()
 
-        return {kind: 'BlockExpr', loc, body}
+        return {kind: "BlockExpr", loc, body}
     }
 
     private parseIfBranch(): AST.IfBranch {
-        this.expect('IfKeyword')
+        this.expect("IfKeyword")
         this.consume() // Skip 'if
 
         const condition = this.parseExpression()
@@ -172,7 +172,7 @@ export class Parser {
     }
 
     private parseFactor(): AST.Expr {
-        if (this.current.type === 'EOF')
+        if (this.current.type === "EOF")
             syntaxError(`Reached end of file while parsing expression on ${this.current.location}`)
 
         const fn = findFactorParser(this.current.type)
@@ -183,7 +183,7 @@ export class Parser {
         syntaxError(`Unknown expression starting with ${this.current}`)
     }
 
-    @FactorParser('NumberLiteral')
+    @RegisterParser("NumberLiteral")
     private parseNumberLiteral(): AST.NumberLiteral {
         const loc = this.current.location
 
@@ -195,23 +195,23 @@ export class Parser {
                 "not a valid number. This should not happen."
             )
 
-        const node = {kind: 'NumberLiteral', loc, value: value} as AST.NumberLiteral
+        const node = {kind: "NumberLiteral", loc, value: value} as AST.NumberLiteral
         this.consume()
 
         return node;
     }
 
-    @FactorParser('StringLiteral')
+    @RegisterParser("StringLiteral")
     private parseStringLiteral(): AST.StringLiteral {
         const loc = this.current.location
 
-        const node = {kind: 'StringLiteral', loc, value: this.current.value} as AST.StringLiteral
+        const node = {kind: "StringLiteral", loc, value: this.current.value} as AST.StringLiteral
         this.consume()
 
         return node;
     }
 
-    @FactorParser('Identifier')
+    @RegisterParser("Identifier")
     private parseSymbol(): AST.Symbol {
         const loc = this.current.location
 
@@ -220,10 +220,10 @@ export class Parser {
 
         this.consume() // Skip identifier
 
-        return {kind: 'Symbol', loc, name}
+        return {kind: "Symbol", loc, name}
     }
 
-    @FactorParser('LeftParen')
+    @RegisterParser("LeftParen")
     private parseSubExpression(): AST.Expr {
         const loc = this.current.location
 
@@ -234,17 +234,17 @@ export class Parser {
         if (this.current.isEof())
             syntaxError(`Reached end of file while parsing sub-expression starting on ${loc}`)
 
-        this.expect('RightParen')
+        this.expect("RightParen")
 
         this.consume() // Skip ')'
 
         return expr
     }
 
-    @FactorParser('VectorStart')
+    @RegisterParser("VectorStart")
     private parseVector(): AST.VectorLiteral {
         // Should not happen
-        this.expect('VectorStart')
+        this.expect("VectorStart")
 
         const loc = this.current.location
 
@@ -254,34 +254,34 @@ export class Parser {
         const xExpr = this.parseExpression()
         if (this.current.isEof())
             syntaxError(`Reached end of file while parsing vector expression starting on ${loc}`)
-        this.expect('Comma')
+        this.expect("Comma")
         this.consume() // Skip ','
 
         // === Y Component ===
         const yExpr = this.parseExpression()
         if (this.current.isEof())
             syntaxError(`Reached end of file while parsing vector expression starting on ${loc}`)
-        this.expect('Comma')
+        this.expect("Comma")
         this.consume() // Skip ','
 
         // === Z Component ===
         const zExpr = this.parseExpression()
         if (this.current.isEof())
             syntaxError(`Reached end of file while parsing vector expression starting on ${loc}`)
-        this.expect('VectorEnd')
+        this.expect("VectorEnd")
         this.consume() // Skip '>'
 
-        return {kind: 'VectorLiteral', loc: loc, x: xExpr, y: yExpr, z: zExpr}
+        return {kind: "VectorLiteral", loc: loc, x: xExpr, y: yExpr, z: zExpr}
     }
 
-    @FactorParser('LetKeyword')
+    @RegisterParser("LetKeyword")
     private parseVariableDeclaration(): AST.VariableDeclaration {
         const loc = this.current.location
 
-        this.expect('LetKeyword')
+        this.expect("LetKeyword")
         this.consume() // Skip 'let'
 
-        this.expect('Identifier')
+        this.expect("Identifier")
 
         const name = this.current
         assert(name.isIdentifier())
@@ -290,37 +290,37 @@ export class Parser {
 
         let value: AST.Expr | undefined
 
-        if (this.current.is('Equals')) {
+        if (this.current.is("Equals")) {
             this.consume() // Skip '='
             value = this.parseExpression()
         }
 
-        return {kind: 'VariableDeclaration', loc, name, value}
+        return {kind: "VariableDeclaration", loc, name, value}
     }
 
-    @FactorParser('FnKeyword')
+    @RegisterParser("FnKeyword")
     private parseFunctionDefinition(): AST.FunctionDefExpr {
         const loc = this.current.location
 
         let name: IdentifierToken | undefined
         const params: IdentifierToken[] = []
 
-        this.expect('FnKeyword')
+        this.expect("FnKeyword")
         this.consume() // Skip 'fn'
 
-        this.expect('LeftParen', 'Identifier')
+        this.expect("LeftParen", "Identifier")
 
         if (this.current.isIdentifier()) {
             name = this.current
             this.consume()
         }
 
-        this.expect('LeftParen')
+        this.expect("LeftParen")
 
         this.consume() // Skip '('
 
-        while (this.stream.isCurrentPresent() && this.current.isNot('RightParen')) {
-            this.expect('Identifier')
+        while (this.stream.isCurrentPresent() && this.current.isNot("RightParen")) {
+            this.expect("Identifier")
 
             const param = this.current
             assert(param.isIdentifier())
@@ -329,48 +329,48 @@ export class Parser {
 
             this.consume() // Skip param name
 
-            this.expect('Comma', 'RightParen')
-            if (this.current.is('Comma'))
+            this.expect("Comma", "RightParen")
+            if (this.current.is("Comma"))
                 this.consume()
         }
 
-        this.expect('RightParen')
+        this.expect("RightParen")
         this.consume()
 
         const block = this.parseBlock()
 
-        return {kind: 'FunctionDefExpr', loc, name, params, block}
+        return {kind: "FunctionDefExpr", loc, name, params, block}
     }
 
-    @FactorParser('ReturnKeyword')
+    @RegisterParser("ReturnKeyword")
     private parseReturn(): AST.ReturnExpr {
         const loc = this.current.location
 
-        this.expect('ReturnKeyword')
+        this.expect("ReturnKeyword")
         this.consume() // Skip 'return'
 
         let value: AST.Expr | undefined = undefined
 
-        if (this.current.isNot('Semicolon'))
+        if (this.current.isNot("Semicolon"))
             value = this.parseExpression()
 
-        return {kind: 'ReturnExpr', loc, expr: value}
+        return {kind: "ReturnExpr", loc, expr: value}
     }
 
-    @FactorParser('IfKeyword')
+    @RegisterParser("IfKeyword")
     private parseIf(): AST.IfExpr {
         const loc = this.current.location
 
-        this.expect('IfKeyword')
+        this.expect("IfKeyword")
 
         let elseBranch: AST.BlockExpr | undefined = undefined
 
         const branches: AST.IfBranch[] = [this.parseIfBranch()]
 
-        while (this.current.is('ElseKeyword')) {
+        while (this.current.is("ElseKeyword")) {
             this.consume() // Skip 'else'
 
-            if (this.current.is('IfKeyword')) {
+            if (this.current.is("IfKeyword")) {
                 branches.push(this.parseIfBranch())
                 continue;
             }
@@ -379,19 +379,49 @@ export class Parser {
             break
         }
 
-        return {kind: 'IfExpr', loc, elseBranch, branches}
+        return {kind: "IfExpr", loc, elseBranch, branches}
     }
 
-    @FactorParser('WhileKeyword')
+    @RegisterParser("WhileKeyword")
     private parseWhile(): AST.WhileExpr {
         const loc = this.current.location
 
-        this.expect('WhileKeyword')
+        this.expect("WhileKeyword")
         this.consume() // Skip 'while'
 
         const condition = this.parseExpression()
         const body = this.parseBlock()
 
-        return {kind: 'While', loc, body, condition}
+        return {kind: "While", loc, body, condition}
+    }
+
+    @RegisterParser("TrueKeyword")
+    private parseTrue(): AST.TrueExpr {
+        const loc = this.current.location
+
+        this.expect("TrueKeyword")
+        this.consume()
+
+        return {kind: "True", loc}
+    }
+
+    @RegisterParser("FalseKeyword")
+    private parseFalse(): AST.FalseExpr {
+        const loc = this.current.location
+
+        this.expect("FalseKeyword")
+        this.consume()
+
+        return {kind: "False", loc}
+    }
+
+    @RegisterParser("UnitKeyword")
+    private parseUnit(): AST.UnitExpr {
+        const loc = this.current.location
+
+        this.expect("UnitKeyword")
+        this.consume()
+
+        return {kind: "Unit", loc}
     }
 }

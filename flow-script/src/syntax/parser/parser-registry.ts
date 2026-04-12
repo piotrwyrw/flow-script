@@ -7,10 +7,10 @@ const ParserFunctionRegistry = {
     exprFacParsers: new Map<TokenType, ParserFunction>()
 }
 
-export function FactorParser(detectionToken: TokenType) {
+export function RegisterParser(detectionToken: TokenType) {
     return (value: ParserFunction, context: ClassMethodDecoratorContext) => {
         if (ParserFunctionRegistry.exprFacParsers.has(detectionToken)) {
-            throw new Error(`A factor parser for an expression starting with '${detectionToken}' was already registered.`)
+            throw new Error(`A factor parser for an expression starting with "${detectionToken}" was already registered.`)
         }
 
         ParserFunctionRegistry.exprFacParsers.set(detectionToken, value)

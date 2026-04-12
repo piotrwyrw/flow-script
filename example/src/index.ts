@@ -1,6 +1,9 @@
-import {Parser, TokenStream} from "flow-script";
+import {Parser, Runtime, TokenStream} from "flow-script";
 import {readFileSync} from "node:fs";
 
 const src = readFileSync('../demo/grammar.flow', {encoding: 'utf-8'})
 const parser = new Parser(new TokenStream(src))
-console.log(JSON.stringify(parser.parse()))
+const program = parser.parse()
+console.log(JSON.stringify(program))
+const runtime = new Runtime(program)
+runtime.interpret()

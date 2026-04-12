@@ -1,7 +1,7 @@
 import {type TokenType, TokenTypes} from "./token-type.js";
 import {Location} from "./location.js";
 
-export type IdentifierToken = Token & { type: 'Identifier' }
+export type IdentifierToken = Token & { type: "Identifier" }
 
 export class Token {
     readonly type: TokenType
@@ -19,11 +19,11 @@ export class Token {
     }
 
     static eof(loc: Location): Token {
-        return new Token('EOF', "", loc)
+        return new Token("EOF", "", loc)
     }
 
     isEof(): boolean {
-        return this.type === 'EOF'
+        return this.type === "EOF"
     }
 
     is(type: TokenType): boolean {
@@ -35,7 +35,7 @@ export class Token {
     }
 
     isIdentifier(): this is IdentifierToken {
-        return this.type === 'Identifier'
+        return this.type === "Identifier"
     }
 
     clone(): Token {
@@ -43,10 +43,10 @@ export class Token {
     }
 
     toString() {
-        if (this.type === 'EOF')
+        if (this.type === "EOF")
             return "EOF";
 
-        if (TokenTypes[this.type].mappingStrategy !== 'none') {
+        if (TokenTypes[this.type].mappingStrategy !== "none") {
             return `"${this.value}" at ${this.location}`
         }
 

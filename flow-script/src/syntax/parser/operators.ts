@@ -30,7 +30,7 @@ export const BinaryOperatorDescriptors: BinaryOperatorPrecedenceMap = {
     "<=": {precedence: 4, group: "Comparative"},
     "<": {precedence: 4, group: "Comparative"},
     ">=": {precedence: 4, group: "Comparative"},
-    '>': {precedence: 4, group: "Comparative"},
+    ">": {precedence: 4, group: "Comparative"},
     "-": {precedence: 5, group: "Arithmetic"},
     "+": {precedence: 5, group: "Arithmetic"},
     "*": {precedence: 6, group: "Arithmetic"},
