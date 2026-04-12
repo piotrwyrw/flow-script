@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2026 Piotr Krzysztof Wyrwas [FlowScript]
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
 import {AST} from "../ast/ast.js";
 import type {TokenType} from "../tokenizer/token-type.js";
 

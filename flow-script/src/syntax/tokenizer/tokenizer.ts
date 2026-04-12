@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2026 Piotr Krzysztof Wyrwas [FlowScript]
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
 import {TokenMappingStrategies, type TokenMappingStrategy, type TokenType, TokenTypes} from "./token-type.js";
 import {tokenizerError} from "../../error/FSError.js";
 import {Token} from "./token.js";

@@ -1,10 +1,15 @@
+/*
+ * Copyright (c) 2026 Piotr Krzysztof Wyrwas [FlowScript]
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
 import type {TokenStream} from "../tokenizer/token-stream.js";
 import {AST} from "../ast/ast.js";
 import {type TokenType, TokenTypes} from "../tokenizer/token-type.js";
 import {syntaxError} from "../../error/FSError.js";
 import assert from "node:assert/strict";
 import {type IdentifierToken, Token} from "../tokenizer/token.js";
-import {RegisterParser, findFactorParser, type ParserFunction} from "./parser-registry.js";
+import {findFactorParser, type ParserFunction, RegisterParser} from "./parser-registry.js";
 import {type BinaryOperatorDescriptor, BinaryOperatorDescriptors, BinaryOperatorGroups} from "./operators.js";
 
 export class Parser {
@@ -99,10 +104,15 @@ export class Parser {
     private parseExpression(): AST.Expr {
         const loc = this.current.location
         const expr = this.parseBinaryExpression()
-        if (this.current.is("LeftParen")) {
-            const args: AST.Expr[] = this.parseCommaSeparated("LeftParen", "RightParen", this.parseExpression)
-            return {kind: "CallExpr", loc, callee: expr, args}
+
+        // Assignment
+        if (expr.kind === "Symbol" && this.current.is("Equals")) {
+            this.consume() // Skip '='
+            const value = this.parseExpression()
+
+            return {kind: "Assignment", loc, target: expr.name, value}
         }
+
         return expr
     }
 
@@ -175,12 +185,50 @@ export class Parser {
         if (this.current.type === "EOF")
             syntaxError(`Reached end of file while parsing expression on ${this.current.location}`)
 
+        const loc = this.current.location
         const fn = findFactorParser(this.current.type)
         if (fn) {
-            return (fn.bind(this))()
+            const fac = (fn.bind(this))()
+
+            // Call expr
+            if (this.current.is("LeftParen")) {
+                const args: AST.Expr[] = this.parseCommaSeparated("LeftParen", "RightParen", this.parseExpression)
+                return {kind: "CallExpr", loc, callee: fac, args}
+            }
+
+            return fac
         }
 
         syntaxError(`Unknown expression starting with ${this.current}`)
+    }
+
+    @RegisterParser("ContinueKeyword")
+    private parseContinue(): AST.ContinueExpr {
+        const loc = this.current.location
+
+        this.consume() // Skip 'continue'
+
+        return {kind: "ContinueExpr", loc}
+    }
+
+    @RegisterParser("BreakKeyword")
+    private parseBreak(): AST.BreakExpr {
+        const loc = this.current.location
+
+        this.consume() // Skip 'break'
+
+        return {kind: "BreakExpr", loc}
+    }
+
+    @RegisterParser("ErrorKeyword")
+    private parseError(): AST.ErrorExpr {
+        const loc = this.current.location
+
+        this.consume() // Skip 'error'
+
+        const message = this.parseExpression()
+
+        return {kind: "ErrorExpr", loc, message}
     }
 
     @RegisterParser("NumberLiteral")
@@ -243,9 +291,6 @@ export class Parser {
 
     @RegisterParser("VectorStart")
     private parseVector(): AST.VectorLiteral {
-        // Should not happen
-        this.expect("VectorStart")
-
         const loc = this.current.location
 
         this.consume()
@@ -274,11 +319,17 @@ export class Parser {
         return {kind: "VectorLiteral", loc: loc, x: xExpr, y: yExpr, z: zExpr}
     }
 
+    @RegisterParser("LeftBracket")
+    private parseArray(): AST.ArrayLiteral {
+        const loc = this.current.location
+        const elements = this.parseCommaSeparated("LeftBracket", "RightBracket", this.parseExpression)
+        return {kind: "ArrayLiteral", loc, elements}
+    }
+
     @RegisterParser("LetKeyword")
     private parseVariableDeclaration(): AST.VariableDeclaration {
         const loc = this.current.location
 
-        this.expect("LetKeyword")
         this.consume() // Skip 'let'
 
         this.expect("Identifier")
@@ -305,7 +356,6 @@ export class Parser {
         let name: IdentifierToken | undefined
         const params: IdentifierToken[] = []
 
-        this.expect("FnKeyword")
         this.consume() // Skip 'fn'
 
         this.expect("LeftParen", "Identifier")
@@ -346,7 +396,6 @@ export class Parser {
     private parseReturn(): AST.ReturnExpr {
         const loc = this.current.location
 
-        this.expect("ReturnKeyword")
         this.consume() // Skip 'return'
 
         let value: AST.Expr | undefined = undefined
@@ -360,8 +409,6 @@ export class Parser {
     @RegisterParser("IfKeyword")
     private parseIf(): AST.IfExpr {
         const loc = this.current.location
-
-        this.expect("IfKeyword")
 
         let elseBranch: AST.BlockExpr | undefined = undefined
 
@@ -386,7 +433,6 @@ export class Parser {
     private parseWhile(): AST.WhileExpr {
         const loc = this.current.location
 
-        this.expect("WhileKeyword")
         this.consume() // Skip 'while'
 
         const condition = this.parseExpression()
@@ -395,11 +441,32 @@ export class Parser {
         return {kind: "While", loc, body, condition}
     }
 
+    @RegisterParser("ForKeyword")
+    private parseFor(): AST.ForExpr {
+        const loc = this.current.location
+
+        this.consume() // Skip 'for'
+
+        this.expect('Identifier')
+
+        const variable = this.current
+        assert(variable.isIdentifier())
+
+        this.consume() // Skip variable
+
+        this.expect('InKeyword')
+        this.consume() // Skip 'in'
+
+        const iterable = this.parseExpression()
+        const block = this.parseBlock()
+
+        return {kind: "For", loc, variable, iterable, block}
+    }
+
     @RegisterParser("TrueKeyword")
     private parseTrue(): AST.TrueExpr {
         const loc = this.current.location
 
-        this.expect("TrueKeyword")
         this.consume()
 
         return {kind: "True", loc}
@@ -409,7 +476,6 @@ export class Parser {
     private parseFalse(): AST.FalseExpr {
         const loc = this.current.location
 
-        this.expect("FalseKeyword")
         this.consume()
 
         return {kind: "False", loc}
@@ -419,7 +485,6 @@ export class Parser {
     private parseUnit(): AST.UnitExpr {
         const loc = this.current.location
 
-        this.expect("UnitKeyword")
         this.consume()
 
         return {kind: "Unit", loc}

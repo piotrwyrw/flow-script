@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2026 Piotr Krzysztof Wyrwas [FlowScript]
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
 /**
  * Defines how the `mapping` field influences the deduction of token types in the lexical analysis.
  * @prop Identifier Specifies that the token type represents an identifier, such as Keywords
@@ -51,9 +56,13 @@ export const TokenTypes = {
     ElseKeyword: IdentifierMappedToken("else"),
     WhileKeyword: IdentifierMappedToken("while"),
     ForKeyword: IdentifierMappedToken("for"),
+    InKeyword: IdentifierMappedToken("in"),
     TrueKeyword: IdentifierMappedToken("true"),
     FalseKeyword: IdentifierMappedToken("false"),
     UnitKeyword: IdentifierMappedToken("unit"),
+    ContinueKeyword: IdentifierMappedToken("continue"),
+    BreakKeyword: IdentifierMappedToken("break"),
+    ErrorKeyword: IdentifierMappedToken("error"),
 
     // Literals
     StringLiteral: UnmappedToken("string literal"),

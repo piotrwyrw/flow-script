@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2026 Piotr Krzysztof Wyrwas [FlowScript]
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
 import {Parser, Runtime, TokenStream} from "flow-script";
 import {readFileSync} from "node:fs";
 

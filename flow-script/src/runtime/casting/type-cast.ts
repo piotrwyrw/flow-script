@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2026 Piotr Krzysztof Wyrwas [FlowScript]
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
 import type {AnyValue, BooleanValue, NumberValue, StringValue, UnitValue, VectorValue} from "../values.js";
 import {runtimeError} from "../../error/FSError.js";
 
@@ -47,6 +52,7 @@ export function castValue<T extends Kind>(value: AnyValue, toType: T): Extract<A
     return fn(value) as Extract<AnyValue, { type: T }>
 }
 
+// I need a class to use decorators, but the instance is completely irrelevant. Hence, `void class`
 void class {
     @RegisterCast("Unit", "String")
     unitToString(value: UnitValue): StringValue {

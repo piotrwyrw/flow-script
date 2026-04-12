@@ -1,8 +1,13 @@
-import {AST} from "../../syntax/ast/ast.js";
-import {type AnyValue, type BooleanValue} from "../values.js";
+/*
+ * Copyright (c) 2026 Piotr Krzysztof Wyrwas [FlowScript]
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
+import {AST} from "../../../syntax/ast/ast.js";
+import {type AnyValue, type BooleanValue} from "../../values.js";
+import {runtimeError} from "../../../error/FSError.js";
+import {castValue} from "../../casting/type-cast.js";
 import type {Interpreter} from "../interpreter.js";
-import {runtimeError} from "../../error/FSError.js";
-import {castValue} from "../casting/type-cast.js";
 
 type BinaryOpHandler = (l: AnyValue, r: AnyValue) => AnyValue
 
@@ -41,7 +46,7 @@ namespace Comparative {
         if ((l.type === "Number" && r.type === "Number")
             || (l.type === "String" && r.type === "String")
             || (l.type === "Boolean" && r.type === "Boolean"))
-            return {type: "Boolean", value: l.type === r.type}
+            return {type: "Boolean", value: l.value === r.value}
 
         runtimeError(`Cannot compare types ${l.type} and ${r.type}}`)
     }
@@ -54,7 +59,7 @@ namespace Comparative {
         if (l.type !== "Number" || r.type !== "Number")
             runtimeError(`Invalid operands for '<' operator: ${l.type} and ${r.type}`)
 
-        return {type: "Boolean", value: l.value === r.value}
+        return {type: "Boolean", value: l.value < r.value}
     }
 
     export function lessThanOrEqual(l: AnyValue, r: AnyValue): BooleanValue {
@@ -219,5 +224,6 @@ namespace Arithmetic {
 export function evalBinaryExpression(interpreter: Interpreter, node: AST.BinaryExpr): AnyValue {
     const left = interpreter.evaluate(node.left)
     const right = interpreter.evaluate(node.right)
+
     return BinaryOpHandlers[node.operator](left, right)
 }

@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2026 Piotr Krzysztof Wyrwas [FlowScript]
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
 import {type IdentifierToken, Token} from "../tokenizer/token.js";
 import {Location} from "../tokenizer/location.js";
 
@@ -119,13 +124,6 @@ export namespace AST {
         block: BlockExpr
     }
 
-    export type ReturnExpr = {
-        kind: "ReturnExpr",
-        loc: Location,
-
-        expr?: Expr
-    }
-
     export type CallExpr = {
         kind: "CallExpr",
         loc: Location,
@@ -183,7 +181,7 @@ export namespace AST {
 
         variable: IdentifierToken,
         iterable: Expr,
-        body: BlockExpr
+        block: BlockExpr
     }
 
     export type TrueExpr = {
@@ -201,12 +199,36 @@ export namespace AST {
         loc: Location
     }
 
+    // === Control flow operators ===
+    export type ReturnExpr = {
+        kind: "ReturnExpr",
+        loc: Location,
+
+        expr?: Expr
+    }
+
+    export type ContinueExpr = {
+        kind: "ContinueExpr",
+        loc: Location
+    }
+
+    export type BreakExpr = {
+        kind: "BreakExpr",
+        loc: Location,
+    }
+
+    export type ErrorExpr = {
+        kind: "ErrorExpr",
+        loc: Location,
+
+        message: Expr
+    }
+
     export type Expr =
         | Literal
         | BlockExpr
         | BinaryExpr
         | FunctionDefExpr
-        | ReturnExpr
         | CallExpr
         | Symbol
         | VariableDeclaration
@@ -217,6 +239,10 @@ export namespace AST {
         | TrueExpr
         | FalseExpr
         | UnitExpr
+        | ReturnExpr
+        | ContinueExpr
+        | BreakExpr
+        | ErrorExpr
 
     // Map node types to prettier names. Useful for displaying informative error messages
     type ExprKindsNameMapping = { [T in Expr["kind"]]: string }
@@ -229,7 +255,6 @@ export namespace AST {
         BlockExpr: "Block Expression",
         BinaryExpr: "Binary Expression",
         FunctionDefExpr: "Function Definition Expression",
-        ReturnExpr: "Return Expression",
         CallExpr: "Call Expression",
         Symbol: "Symbol Reference",
         VariableDeclaration: "Variable Declaration",
@@ -239,7 +264,11 @@ export namespace AST {
         For: "For Expression",
         True: "True",
         False: "False",
-        Unit: "Unit"
+        Unit: "Unit",
+        ReturnExpr: "Return Expression",
+        ContinueExpr: "Continue Expression",
+        BreakExpr: "Break Expression",
+        ErrorExpr: "Error Expression"
     }
 
     export function prettyName<T extends Expr>(expr: T): string {
@@ -248,5 +277,9 @@ export namespace AST {
 
     export type Program = {
         expressions: Expr[]
+    }
+
+    export function debugFunctionName(expr: AST.FunctionDefExpr): string {
+        return expr.name?.value || `<anon:${expr.loc}>`
     }
 }

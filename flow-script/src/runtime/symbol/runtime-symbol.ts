@@ -3,5 +3,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-export { Token, TokenTypes } from "./tokenizer/token.js";
-//# sourceMappingURL=index.js.map
+import type {AnyValue} from "../values.js";
+
+export type RuntimeSymbol = {
+    value: AnyValue
+}
