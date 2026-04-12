@@ -148,7 +148,7 @@ export class Tokenizer {
 
     // If present, commit the pending token to the token array and reset the pending token object
     private flush(): boolean {
-        // No pending token, so nothing to do
+        // No token is pending, so nothing to do
         if (!this.pending)
             return false;
 

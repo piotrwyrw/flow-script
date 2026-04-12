@@ -1,3 +1,5 @@
+import "./runtime/casting/type-cast.js";
+
 // Public module exports
 export {FSError, tokenizerError, syntaxError} from "./error/FSError.js";
 export {type TokenType, TokenTypes} from "./syntax/tokenizer/token-type.js";
