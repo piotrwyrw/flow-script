@@ -4,8 +4,8 @@
  */
 
 import {TokenMappingStrategies, type TokenMappingStrategy, type TokenType, TokenTypes} from "./token-type.js";
-import {tokenizerError} from "../../error/FSError.js";
 import {Token} from "./token.js";
+import {tokenizerError} from "../../log/error.js";
 
 type PendingToken = {
     type: TokenType

@@ -5,6 +5,7 @@
 
 import {type IdentifierToken, Token} from "../tokenizer/token.js";
 import {Location} from "../tokenizer/location.js";
+import type {AnyValue} from "../../runtime/values.js";
 
 export namespace AST {
     // === Literal Nodes ===
@@ -108,6 +109,14 @@ export namespace AST {
         operator: BinaryOp.BinaryExprOperator
     }
 
+    export type IsExpr = {
+        kind: "Is",
+        loc: Location,
+
+        expr: Expr,
+        type: IdentifierToken
+    }
+
     export type BlockExpr = {
         kind: "BlockExpr",
         loc: Location,
@@ -199,6 +208,22 @@ export namespace AST {
         loc: Location
     }
 
+    export type ArrayAccessExpr = {
+        kind: "ArrayAccess",
+        loc: Location,
+
+        array: AST.Expr,
+        index: AST.Expr
+    }
+
+    export type CastExpr = {
+        kind: "CastExpr",
+        loc: Location,
+
+        expr: AST.Expr,
+        type: IdentifierToken
+    }
+
     // === Control flow operators ===
     export type ReturnExpr = {
         kind: "ReturnExpr",
@@ -228,6 +253,7 @@ export namespace AST {
         | Literal
         | BlockExpr
         | BinaryExpr
+        | IsExpr
         | FunctionDefExpr
         | CallExpr
         | Symbol
@@ -239,7 +265,9 @@ export namespace AST {
         | TrueExpr
         | FalseExpr
         | UnitExpr
+        | ArrayAccessExpr
         | ReturnExpr
+        | CastExpr
         | ContinueExpr
         | BreakExpr
         | ErrorExpr
@@ -265,10 +293,13 @@ export namespace AST {
         True: "True",
         False: "False",
         Unit: "Unit",
+        ArrayAccess: "Array Access",
         ReturnExpr: "Return Expression",
+        CastExpr: "Cast Expression",
         ContinueExpr: "Continue Expression",
         BreakExpr: "Break Expression",
-        ErrorExpr: "Error Expression"
+        ErrorExpr: "Error Expression",
+        Is: "Is Expression"
     }
 
     export function prettyName<T extends Expr>(expr: T): string {

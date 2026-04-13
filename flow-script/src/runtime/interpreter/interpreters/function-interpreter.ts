@@ -6,9 +6,9 @@
 import type {Interpreter} from "../interpreter.js";
 import {AST} from "../../../syntax/ast/ast.js";
 import type {AnyValue, FunctionValue} from "../../values.js";
-import {runtimeError} from "../../../error/FSError.js";
 import {ReturnSignal} from "../control-flow.js";
 import debugFunctionName = AST.debugFunctionName;
+import {runtimeError} from "../../../log/error.js";
 
 export function evalFunctionDefinition(interpreter: Interpreter, expr: AST.FunctionDefExpr): AnyValue {
     const params: string[] = []
@@ -24,7 +24,8 @@ export function evalFunctionDefinition(interpreter: Interpreter, expr: AST.Funct
         type: "Function",
         block: expr.block,
         params: expr.params.map(id => id.value),
-        identifier: debugFunctionName(expr)
+        identifier: debugFunctionName(expr),
+        capturedScope: interpreter.runtime.scopeTree.currentScope()
     }
 
     // Only define the function as a symbol if it's not anon
@@ -66,22 +67,24 @@ export function evalCall(interpreter: Interpreter, expr: AST.CallExpr): AnyValue
     }
 
     // Enter the function scope
-    interpreter.runtime.scopeTree.enterNewScope(expr)
+    interpreter.runtime.scopeTree.enterNewScope(expr, callee.capturedScope)
 
     // Define parameter variables in the function scope
     args.forEach((expr, name) => {
         interpreter.runtime.scopeTree.defineSymbol(name, expr)
     })
 
+    let returnValue: AnyValue = {type: "Unit"}
+
     try {
         interpreter.evaluate(callee.block)
     } catch (e) {
-        if (e instanceof ReturnSignal) return e.value
-        throw e;
+        if (e instanceof ReturnSignal) returnValue = e.value;
+        else throw e;
     }
 
     // Leave the function scope
     interpreter.runtime.scopeTree.leaveScope()
 
-    return {type: "Unit"}
+    return returnValue
 }

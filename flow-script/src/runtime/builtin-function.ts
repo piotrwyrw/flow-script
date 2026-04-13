@@ -4,7 +4,6 @@
  */
 
 import type {AnyValue} from "./values.js";
-import {runtimeError} from "../error/FSError.js";
 import {castValue} from "./casting/type-cast.js";
 
 export type BuiltinFunction = {

@@ -17,9 +17,11 @@ import {evalCall, evalFunctionDefinition} from "./interpreters/function-interpre
 import {evalBreak, evalContinue, evalError, evalReturn} from "./interpreters/control-flow-interpreter.js";
 import {evalBlock} from "./interpreters/block-interpreter.js";
 import {evalIf} from "./interpreters/if-interpreter.js";
-import {evalArray} from "./interpreters/array-interpreter.js";
+import {evalArray, evalArrayAccess} from "./interpreters/array-interpreter.js";
 import {evalFor, evalWhile} from "./interpreters/loop-interpreter.js";
 import type {AnyValue} from "../values.js";
+import {evalCast} from "./interpreters/cast-interpreter.js";
+import {evalIs} from "./interpreters/is-interpreter.js";
 
 export class Interpreter {
 
@@ -42,10 +44,13 @@ export class Interpreter {
         VariableDeclaration: this.VariableDeclaration.bind(this),
         VectorLiteral: this.VectorLiteral.bind(this),
         While: this.While.bind(this),
+        ArrayAccess: this.ArrayAccess.bind(this),
+        CastExpr: this.CastExpr.bind(this),
         ReturnExpr: this.ReturnExpr.bind(this),
         ContinueExpr: this.ContinueExpr.bind(this),
         BreakExpr: this.BreakExpr.bind(this),
-        ErrorExpr: this.ErrorExpr.bind(this)
+        ErrorExpr: this.ErrorExpr.bind(this),
+        Is: this.IsExpr.bind(this)
     }
 
     readonly runtime: Runtime
@@ -138,6 +143,14 @@ export class Interpreter {
         return evalWhile(this, expr);
     }
 
+    private ArrayAccess(expr: Extract<AST.Expr, { kind: "ArrayAccess" }>): AnyValue {
+        return evalArrayAccess(this, expr)
+    }
+
+    private CastExpr(expr: Extract<AST.Expr, { kind: "CastExpr" }>): AnyValue {
+        return evalCast(this, expr)
+    }
+
     private ContinueExpr(expr: Extract<AST.Expr, { kind: "ContinueExpr" }>): AnyValue {
         return evalContinue(this, expr);
     }
@@ -149,4 +162,9 @@ export class Interpreter {
     private ErrorExpr(expr: Extract<AST.Expr, { kind: "ErrorExpr" }>): AnyValue {
         return evalError(this, expr)
     }
+
+    private IsExpr(expr: Extract<AST.Expr, { kind: "Is" }>): AnyValue {
+        return evalIs(this, expr)
+    }
+
 }

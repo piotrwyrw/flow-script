@@ -63,6 +63,8 @@ export const TokenTypes = {
     ContinueKeyword: IdentifierMappedToken("continue"),
     BreakKeyword: IdentifierMappedToken("break"),
     ErrorKeyword: IdentifierMappedToken("error"),
+    CastKeyword: IdentifierMappedToken("cast"),
+    IsKeyword: IdentifierMappedToken("is"),
 
     // Literals
     StringLiteral: UnmappedToken("string literal"),
@@ -101,7 +103,8 @@ export const TokenTypes = {
     RightCurly: CharSeqMappedToken("}"),
     At: CharSeqMappedToken("@"),
     Semicolon: CharSeqMappedToken(";"),
-    Comma: CharSeqMappedToken(",")
+    Comma: CharSeqMappedToken(","),
+    Pipe: CharSeqMappedToken("|")
 } as const;
 
 export type TokenType = keyof typeof TokenTypes;

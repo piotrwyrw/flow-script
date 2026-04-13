@@ -7,8 +7,8 @@ import {AST} from "../syntax/ast/ast.js";
 import {Interpreter} from "./interpreter/interpreter.js";
 import {ScopeTree} from "./scope/scope.js";
 import {BreakSignal, ContinueSignal, ErrorSignal, ReturnSignal} from "./interpreter/control-flow.js";
-import {runtimeError} from "../error/FSError.js";
 import {type BuiltinFunction, DefaultBuiltinFunctions} from "./builtin-function.js";
+import {runtimeError} from "../log/error.js";
 
 export class Runtime {
     private readonly program: AST.Program

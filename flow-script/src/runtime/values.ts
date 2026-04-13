@@ -5,6 +5,8 @@
 
 import {AST} from "../syntax/ast/ast.js";
 import type {BuiltinFunction} from "./builtin-function.js";
+import type {Scope} from "./scope/scope.js";
+import type {IdentifierToken} from "../syntax/tokenizer/token.js";
 
 export type UnitValue = { type: "Unit" }
 
@@ -16,9 +18,17 @@ export type BooleanValue = { type: "Boolean", value: boolean }
 
 export type VectorValue = { type: "Vector", value: { x: number, y: number, z: number } }
 
-export type FunctionValue = { type: "Function", identifier: string, params: string[], block: AST.BlockExpr }
+export type TypeValue = { type: "Type", value: IdentifierToken }
 
-export type BuiltinFunctionValue = { type: "BuiltinFunction", function: BuiltinFunction}
+export type FunctionValue = {
+    type: "Function",
+    identifier: string,
+    params: string[],
+    block: AST.BlockExpr,
+    capturedScope: Scope
+}
+
+export type BuiltinFunctionValue = { type: "BuiltinFunction", function: BuiltinFunction }
 
 export type ArrayValue = { type: "Array", value: AnyValue[] }
 
@@ -31,3 +41,17 @@ export type AnyValue =
     | FunctionValue
     | BuiltinFunctionValue
     | ArrayValue
+
+const identifierTypeMap: { [key: string]: AnyValue["type"] } = {
+    "unit": "Unit",
+    "number": "Number",
+    "string": "String",
+    "boolean": "Boolean",
+    "vector": "Vector",
+    "function": "Function",
+    "array": "Array"
+}
+
+export function typeFromIdentifier(identifier: IdentifierToken): AnyValue["type"] | undefined {
+    return identifierTypeMap[identifier.value]
+}

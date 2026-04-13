@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import type {AnyValue, BooleanValue, NumberValue, StringValue, UnitValue, VectorValue} from "../values.js";
-import {runtimeError} from "../../error/FSError.js";
+import type {AnyValue, ArrayValue, BooleanValue, NumberValue, StringValue, UnitValue, VectorValue} from "../values.js";
+import {runtimeError} from "../../log/error.js";
 
 type Kind = AnyValue["type"];
 
@@ -38,16 +38,22 @@ function RegisterCast<A extends Kind, B extends Kind>(from: A, to: B) {
 }
 
 export function castValue<T extends Kind>(value: AnyValue, toType: T): Extract<AnyValue, { type: T }> {
-    const err = `Cannot cast value of type ${value.type} to ${toType}`
+    const cast = tryCastValue(value, toType)
+    if (!cast)
+        runtimeError(`Cannot cast value of type ${value.type} to ${toType}`)
 
+    return cast
+}
+
+export function tryCastValue<T extends Kind>(value: AnyValue, toType: T): Extract<AnyValue, { type: T }> | undefined {
     if (value.type === toType)
         return {...value} as Extract<AnyValue, { type: T }>
 
     const map = castRegistry.get(value.type)
-    if (!map) runtimeError(err)
+    if (!map) return undefined;
 
     const fn = map.get(toType)
-    if (!fn) runtimeError(err)
+    if (!fn) return undefined;
 
     return fn(value) as Extract<AnyValue, { type: T }>
 }
@@ -72,5 +78,10 @@ void class {
     @RegisterCast("Vector", "String")
     vectorToString(value: VectorValue): StringValue {
         return {type: "String", value: `<|${value.value.x}, ${value.value.y}, ${value.value.z}|>`}
+    }
+
+    @RegisterCast("String", "Array")
+    stringToArray(value: StringValue): ArrayValue {
+        return {type: "Array", value: [...value.value].map(v => ({type: "String", value: v}))}
     }
 }

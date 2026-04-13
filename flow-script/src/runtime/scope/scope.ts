@@ -6,9 +6,9 @@
 import {AST} from "../../syntax/ast/ast.js";
 import type {IdentifierToken} from "../../syntax/tokenizer/token.js";
 import type {RuntimeSymbol} from "../symbol/runtime-symbol.js";
-import {runtimeError} from "../../error/FSError.js";
 import type {AnyValue} from "../values.js";
-import type {Runtime} from "../runtime.js";
+import {type Runtime} from "../runtime.js";
+import {runtimeError} from "../../log/error.js";
 
 export type Scope = {
     holder?: AST.Expr,
@@ -32,8 +32,8 @@ export class ScopeTree {
         this.scopes.push({holder, parent, symbols: new Map<string, RuntimeSymbol>()})
     }
 
-    enterNewScope(holder: AST.Expr) {
-        this.enter(holder, this.currentScope())
+    enterNewScope(holder: AST.Expr, parent?: Scope) {
+        this.enter(holder, parent || this.currentScope())
     }
 
     currentScope(): Scope {

@@ -5,8 +5,8 @@
 
 import type {Interpreter} from "../interpreter.js";
 import {AST} from "../../../syntax/ast/ast.js";
-import {runtimeError} from "../../../error/FSError.js";
 import type {AnyValue} from "../../values.js";
+import {runtimeError} from "../../../log/error.js";
 
 export function evalIf(interpreter: Interpreter, expr: AST.IfExpr): AnyValue {
     for (let branch of expr.branches) {

@@ -5,9 +5,9 @@
 
 import {AST} from "../../../syntax/ast/ast.js";
 import {type AnyValue, type BooleanValue} from "../../values.js";
-import {runtimeError} from "../../../error/FSError.js";
 import {castValue} from "../../casting/type-cast.js";
 import type {Interpreter} from "../interpreter.js";
+import {runtimeError} from "../../../log/error.js";
 
 type BinaryOpHandler = (l: AnyValue, r: AnyValue) => AnyValue
 
@@ -23,7 +23,7 @@ const BinaryOpHandlers: Record<AST.BinaryOp.BinaryExprOperator, BinaryOpHandler>
     "*": (l: AnyValue, r: AnyValue) => Arithmetic.times(l, r),
     "+": (l: AnyValue, r: AnyValue) => Arithmetic.plus(l, r),
     "-": (l: AnyValue, r: AnyValue) => Arithmetic.minus(l, r),
-    "/": (l: AnyValue, r: AnyValue) => Arithmetic.divide(l, r)
+    "/": (l: AnyValue, r: AnyValue) => Arithmetic.divide(l, r),
 }
 
 namespace Comparative {
@@ -154,6 +154,18 @@ namespace Arithmetic {
                     y: l.value + r.value.y,
                     z: l.value + r.value.z
                 }
+            }
+
+        if (l.type === "Array")
+            return {
+                type: "Array",
+                value: [...l.value, r]
+            }
+
+        if (r.type === "Array")
+            return {
+                type: "Array",
+                value: [l, ...r.value]
             }
 
         runtimeError(`Invalid operands for '+' operator: ${l.type} and ${r.type}`)

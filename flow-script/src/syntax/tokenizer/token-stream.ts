@@ -4,13 +4,16 @@
  */
 
 import {Tokenizer} from "./tokenizer.js";
-import {tokenizerError} from "../../error/FSError.js";
 import {Token} from "./token.js";
 import {Location} from "./location.js";
+import {
+    type AnySourceResolutionStrategy,
+    type RedundantSourceResolutionStrategy,
+    resolveSource
+} from "./source-resolution.js";
+import {retrieveErrorMessage} from "../../utils.js";
 
 export class TokenStream {
-
-    private readonly input: string
     private tokenizer: Tokenizer
 
     private tokens: Token[] | undefined = undefined
@@ -20,19 +23,55 @@ export class TokenStream {
     private currentToken: Token = Token.eof(new Location(-1, -1))
     private nextToken: Token = Token.eof(new Location(-1, -1))
 
-    constructor(input: string) {
-        this.input = input
-        this.tokenizer = new Tokenizer(this.input)
+    constructor(tokenizer: Tokenizer) {
+        this.tokenizer = tokenizer
     }
 
-    tokenize() {
-        if (this.tokens)
-            tokenizerError("The Tokenizer of this TokenStream was already previously invoked.")
+    static async fromResolvedSource(strategy: AnySourceResolutionStrategy | RedundantSourceResolutionStrategy, tokenize: boolean = false): Promise<TokenStream | undefined> {
+        try {
+            const source = await resolveSource(strategy);
+
+            logger.info({
+                message: "Source resolution successful.",
+                fields: [{name: "strategy", value: strategy.kind}]
+            })
+
+            const instance = new this(new Tokenizer(source));
+            if (tokenize)
+                instance.tokenize()
+            return instance
+        } catch (e) {
+            logger.error({
+                message: `Failed to resolve the source with the "${strategy.kind}" strategy.`,
+                fields: [{name: "error", value: retrieveErrorMessage(e)}]
+            })
+
+            if (!("fallback" in strategy) || !strategy.fallback)
+                return undefined
+
+            logger.info({
+                message: `Attempting to resolve the source with fallback strategy "${strategy.fallback.kind}"`,
+                fields: [
+                    {name: "fallbackStrategy", value: strategy.fallback.kind}
+                ]
+            })
+
+            return this.fromResolvedSource(strategy.fallback)
+        }
+    }
+
+    tokenize(): this {
+        if (this.tokens) {
+            logger.warn({message: "The Tokenizer of this TokenStream was already previously invoked.", fields: []})
+            return this
+        }
 
         this.tokens = this.tokenizer.tokenize().getTokens()
 
         this.consume()
         this.consume()
+
+        return this
     }
 
     isCurrentPresent() {
@@ -40,8 +79,11 @@ export class TokenStream {
     }
 
     consume() {
-        if (!this.tokens)
-            tokenizerError("Could not consume token: the input of this TokenStream has not been tokenized yet.")
+        if (!this.tokens) {
+            const err = "Could not consume token: the input of this TokenStream has not been tokenized yet, or there are no remaining tokens.";
+            logger.error({message: err, fields: []})
+            throw new Error(err);
+        }
 
         this.currentToken = this.nextToken.clone()
 

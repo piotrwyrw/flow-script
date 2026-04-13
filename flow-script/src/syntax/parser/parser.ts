@@ -6,14 +6,24 @@
 import type {TokenStream} from "../tokenizer/token-stream.js";
 import {AST} from "../ast/ast.js";
 import {type TokenType, TokenTypes} from "../tokenizer/token-type.js";
-import {syntaxError} from "../../error/FSError.js";
 import assert from "node:assert/strict";
 import {type IdentifierToken, Token} from "../tokenizer/token.js";
 import {findFactorParser, type ParserFunction, RegisterParser} from "./parser-registry.js";
 import {type BinaryOperatorDescriptor, BinaryOperatorDescriptors, BinaryOperatorGroups} from "./operators.js";
+import {type Log, type LogField, LogLevel} from "../../log/logger.js";
+
+class SyntaxError {
+    log: Log
+
+    constructor(message: string, fields?: LogField[]) {
+        this.log = {level: LogLevel.ERROR, message, fields: [...fields || []]}
+    }
+}
 
 export class Parser {
     private readonly exprFacParsers = new Map<TokenType, ParserFunction>()
+
+    private failed: boolean = false
 
     private stream: TokenStream
 
@@ -22,9 +32,12 @@ export class Parser {
 
     constructor(stream: TokenStream) {
         this.stream = stream
-        this.stream.tokenize()
         this.current = this.stream.getCurrent()
         this.next = this.stream.getNext()
+    }
+
+    ok(): boolean {
+        return !this.failed;
     }
 
     private consume() {
@@ -33,17 +46,22 @@ export class Parser {
         this.next = this.stream.getNext()
     }
 
-    parse(): AST.Program {
-        const expressions: AST.Expr[] = []
-        while (this.stream.isCurrentPresent()) {
-            const expr = this.parseExpression()
-
-            this.expect("Semicolon")
+    // Recover to after the next semicolon and continue parsing there
+    private recover() {
+        while (this.stream.isCurrentPresent() && this.current.isNot("Semicolon"))
             this.consume()
 
-            expressions.push(expr)
-        }
-        return {expressions} as AST.Program
+        if (this.current.is("Semicolon"))
+            this.consume() // Skip ';'
+    }
+
+    private error(msg: string, fields?: LogField[]): never {
+        this.failed = true
+        throw new SyntaxError(msg, [...fields || [],
+            {name: "Line", value: this.current.location.line.toString()},
+            {name: "Col", value: this.current.location.column.toString()},
+            {name: "Token", value: this.current.toString()}
+        ])
     }
 
     private expect(...types: TokenType[]): void | never {
@@ -74,7 +92,38 @@ export class Parser {
                 return type
         }).join(" or ")
 
-        syntaxError(`Expected ${expected}, ${actual} on ${this.current.location}`)
+        this.error(`Expected ${expected}, ${actual} on ${this.current.location}`)
+    }
+
+
+    parse(): AST.Program {
+        const expressions: AST.Expr[] = []
+        while (this.stream.isCurrentPresent()) {
+            try {
+                const expr = this.parseExpression()
+
+                this.expect("Semicolon")
+                this.consume()
+
+                expressions.push(expr)
+            } catch (e) {
+                if (e instanceof SyntaxError) {
+                    logger.log(e.log)
+                    this.recover()
+                    continue;
+                }
+
+                throw e;
+            }
+        }
+
+        if (this.failed) {
+            logger.critical({message: "Parsing failed.", fields: []})
+            return {expressions: []} as AST.Program
+        }
+
+        logger.info({message: "Parsing successful.", fields: []})
+        return {expressions} as AST.Program
     }
 
     private parseCommaSeparated<T extends AST.Expr>(initialToken: TokenType, terminatingToken: TokenType, parseFn: () => T): T[] {
@@ -113,6 +162,19 @@ export class Parser {
             return {kind: "Assignment", loc, target: expr.name, value}
         }
 
+        // Type check
+        if (this.current.is("IsKeyword")) {
+            this.consume() // Skip 'is'
+
+            this.expect("Identifier")
+            const typeName = this.current
+            assert(typeName.isIdentifier())
+
+            this.consume() // Skip type identifier
+
+            return {kind: "Is", loc, expr, type: typeName}
+        }
+
         return expr
     }
 
@@ -132,7 +194,7 @@ export class Parser {
             if (precedence < minPrecedence) break;
 
             if (lastDescriptor && lastDescriptor.group === descriptor.group && !BinaryOperatorGroups[lastDescriptor.group].allowChaining) {
-                syntaxError(`Chaining ${descriptor.group.toLowerCase()} operators in an expression is not allowed. Failed on ${this.current.location}`)
+                this.error(`Chaining ${descriptor.group.toLowerCase()} operators is not allowed. Failed on ${this.current.location}`)
             }
 
             lastDescriptor = descriptor
@@ -183,23 +245,56 @@ export class Parser {
 
     private parseFactor(): AST.Expr {
         if (this.current.type === "EOF")
-            syntaxError(`Reached end of file while parsing expression on ${this.current.location}`)
+            this.error(`Reached end of file while parsing expression on ${this.current.location}`)
 
         const loc = this.current.location
         const fn = findFactorParser(this.current.type)
         if (fn) {
-            const fac = (fn.bind(this))()
+            let fac = (fn.bind(this))()
 
             // Call expr
-            if (this.current.is("LeftParen")) {
-                const args: AST.Expr[] = this.parseCommaSeparated("LeftParen", "RightParen", this.parseExpression)
-                return {kind: "CallExpr", loc, callee: fac, args}
+            while (this.stream.isCurrentPresent() && this.current.is("LeftParen") || this.current.is("LeftBracket") || this.current.is("CastKeyword") || this.current.is("Pipe")) {
+                let loc = this.current.location
+
+                if (this.current.is("LeftParen")) {
+                    const args: AST.Expr[] = this.parseCommaSeparated("LeftParen", "RightParen", this.parseExpression)
+                    fac = {kind: "CallExpr", loc, callee: fac, args}
+                    continue;
+                }
+
+                if (this.current.is("LeftBracket")) {
+                    this.consume() // Skip '['
+                    const index = this.parseExpression()
+                    this.expect("RightBracket")
+                    this.consume() // Skip ']'
+                    fac = {kind: "ArrayAccess", loc, array: fac, index}
+                    continue;
+                }
+
+                if (this.current.is("CastKeyword")) {
+                    this.consume() // Skip 'cast'
+                    this.expect("Identifier")
+
+                    const typeIdentifier = this.current
+                    assert(typeIdentifier.isIdentifier())
+
+                    fac = {kind: "CastExpr", loc, expr: fac, type: typeIdentifier}
+
+                    this.consume() // Skip type identifier
+                }
+
+                if (this.current.is("Pipe")) {
+                    this.consume() // Skip '|'
+
+                    const callee = this.parseExpression()
+                    fac = {kind: "CallExpr", loc, args: [fac], callee}
+                }
             }
 
             return fac
         }
 
-        syntaxError(`Unknown expression starting with ${this.current}`)
+        this.error(`Unknown expression starting with ${this.current}`)
     }
 
     @RegisterParser("ContinueKeyword")
@@ -238,7 +333,7 @@ export class Parser {
         const value = Number.parseFloat(this.current.value)
 
         if (Number.isNaN(value))
-            syntaxError(
+            this.error(
                 "Could not parse number literal because the value of the number literal token is " +
                 "not a valid number. This should not happen."
             )
@@ -280,7 +375,7 @@ export class Parser {
         const expr = this.parseExpression()
 
         if (this.current.isEof())
-            syntaxError(`Reached end of file while parsing sub-expression starting on ${loc}`)
+            this.error(`Reached end of file while parsing sub-expression starting on ${loc}`)
 
         this.expect("RightParen")
 
@@ -298,21 +393,21 @@ export class Parser {
         // === X Component ===
         const xExpr = this.parseExpression()
         if (this.current.isEof())
-            syntaxError(`Reached end of file while parsing vector expression starting on ${loc}`)
+            this.error(`Reached end of file while parsing vector expression starting on ${loc}`)
         this.expect("Comma")
         this.consume() // Skip ','
 
         // === Y Component ===
         const yExpr = this.parseExpression()
         if (this.current.isEof())
-            syntaxError(`Reached end of file while parsing vector expression starting on ${loc}`)
+            this.error(`Reached end of file while parsing vector expression starting on ${loc}`)
         this.expect("Comma")
         this.consume() // Skip ','
 
         // === Z Component ===
         const zExpr = this.parseExpression()
         if (this.current.isEof())
-            syntaxError(`Reached end of file while parsing vector expression starting on ${loc}`)
+            this.error(`Reached end of file while parsing vector expression starting on ${loc}`)
         this.expect("VectorEnd")
         this.consume() // Skip '>'
 

@@ -4,9 +4,9 @@
  */
 
 import {AST} from "../../../syntax/ast/ast.js";
-import {runtimeError} from "../../../error/FSError.js";
 import type {Interpreter} from "../interpreter.js";
 import type {AnyValue} from "../../values.js";
+import {runtimeError} from "../../../log/error.js";
 
 export function evalVectorLiteral(interpreter: Interpreter, expr: AST.VectorLiteral): AnyValue {
     const x = interpreter.evaluate(expr.x)
