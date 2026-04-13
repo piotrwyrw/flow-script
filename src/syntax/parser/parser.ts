@@ -5,8 +5,8 @@
 
 import type {TokenStream} from "../tokenizer/token-stream.js";
 import {AST} from "../ast/ast.js";
-import {type TokenType, TokenTypes} from "../tokenizer/token-type.js";
 import assert from "node:assert/strict";
+import {type TokenType, TokenTypes} from "../tokenizer/token-type.js";
 import {type IdentifierToken, Token} from "../tokenizer/token.js";
 import {findFactorParser, type ParserFunction, RegisterParser} from "./parser-registry.js";
 import {type BinaryOperatorDescriptor, BinaryOperatorDescriptors, BinaryOperatorGroups} from "./operators.js";

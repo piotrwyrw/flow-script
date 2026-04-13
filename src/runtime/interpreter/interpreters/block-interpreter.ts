@@ -10,8 +10,14 @@ import type {AnyValue} from "../../values.js";
 export function evalBlock(interpreter: Interpreter, expr: AST.BlockExpr): AnyValue {
     let lastValue: AnyValue = {type: "Unit"}
 
-    for (let e of expr.body) {
-        lastValue = interpreter.evaluate(e)
+    interpreter.runtime.scopeTree.enterNewScope(expr)
+
+    try {
+        for (let e of expr.body) {
+            lastValue = interpreter.evaluate(e)
+        }
+    } finally {
+        interpreter.runtime.scopeTree.leaveScope()
     }
 
     return lastValue

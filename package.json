@@ -1,14 +1,19 @@
 {
   "name": "flow-script",
   "version": "1.0.0",
-  "description": "A minimal scripting language for the Flow particle simulator",
+  "description": "A minimal dynamically-typed scripting language designed for controlling the Flow particle simulator",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w"
   },
-  "keywords": [],
+  "keywords": [
+    "flowscript",
+    "scripting",
+    "language",
+    "interpreter"
+  ],
   "author": "Piotr K. Wyrwas",
   "license": "GPL-3.0",
   "type": "module",

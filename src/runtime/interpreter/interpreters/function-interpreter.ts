@@ -7,8 +7,8 @@ import type {Interpreter} from "../interpreter.js";
 import {AST} from "../../../syntax/ast/ast.js";
 import type {AnyValue, FunctionValue} from "../../values.js";
 import {ReturnSignal} from "../control-flow.js";
-import debugFunctionName = AST.debugFunctionName;
 import {runtimeError} from "../../../log/error.js";
+import debugFunctionName = AST.debugFunctionName;
 
 export function evalFunctionDefinition(interpreter: Interpreter, expr: AST.FunctionDefExpr): AnyValue {
     const params: string[] = []
@@ -66,25 +66,20 @@ export function evalCall(interpreter: Interpreter, expr: AST.CallExpr): AnyValue
         return callee.function.callback(...args.values())
     }
 
-    // Enter the function scope
-    interpreter.runtime.scopeTree.enterNewScope(expr, callee.capturedScope)
-
-    // Define parameter variables in the function scope
-    args.forEach((expr, name) => {
-        interpreter.runtime.scopeTree.defineSymbol(name, expr)
-    })
-
-    let returnValue: AnyValue = {type: "Unit"}
-
     try {
-        interpreter.evaluate(callee.block)
+        // Enter the function scope
+        interpreter.runtime.scopeTree.enterNewScope(expr, callee.capturedScope)
+
+        // Define parameter variables in the function scope
+        args.forEach((expr, name) => {
+            interpreter.runtime.scopeTree.defineSymbol(name, expr)
+        })
+
+        return interpreter.evaluate(callee.block)
     } catch (e) {
-        if (e instanceof ReturnSignal) returnValue = e.value;
-        else throw e;
+        if (e instanceof ReturnSignal) return e.value;
+        throw e
+    } finally {
+        interpreter.runtime.scopeTree.leaveScope()
     }
-
-    // Leave the function scope
-    interpreter.runtime.scopeTree.leaveScope()
-
-    return returnValue
 }
