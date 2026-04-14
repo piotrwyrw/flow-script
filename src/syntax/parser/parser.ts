@@ -5,12 +5,12 @@
 
 import type {TokenStream} from "../tokenizer/token-stream";
 import {AST} from "../ast/ast";
-import assert from "node:assert/strict";
 import {type TokenType, TokenTypes} from "../tokenizer/token-type";
 import {type IdentifierToken, Token} from "../tokenizer/token";
 import {findFactorParser, type ParserFunction, RegisterParser} from "./parser-registry";
 import {type BinaryOperatorDescriptor, BinaryOperatorDescriptors, BinaryOperatorGroups} from "./operators";
 import {type Log, type LogField, LogLevel} from "../../log/logger";
+import {assert} from "../../utils";
 
 class SyntaxError {
     log: Log

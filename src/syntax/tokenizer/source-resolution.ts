@@ -3,17 +3,11 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import {readFileSync} from "node:fs";
 import {retrieveErrorMessage} from "../../utils";
 
 export type SourceStringResolutionStrategy = {
     kind: "string",
     sourceString: string
-}
-
-export type LocalFileSystemResolutionStrategy = {
-    kind: "fs",
-    filePath: string
 }
 
 export type BasicWebResourceResolutionStrategy = {
@@ -23,7 +17,6 @@ export type BasicWebResourceResolutionStrategy = {
 
 export type AnySourceResolutionStrategy =
     | SourceStringResolutionStrategy
-    | LocalFileSystemResolutionStrategy
     | BasicWebResourceResolutionStrategy
 
 export type RedundantSourceResolutionStrategy = AnySourceResolutionStrategy & {fallback?: RedundantSourceResolutionStrategy}
@@ -36,31 +29,6 @@ function resolveSourceString(strategy: SourceStringResolutionStrategy): string {
     })
 
     return strategy.sourceString
-}
-
-function resolveFileSystem(strategy: LocalFileSystemResolutionStrategy): string {
-    try {
-        const src = readFileSync(strategy.filePath, {encoding: "ascii"})
-
-        logger.info({
-            message: "Resolved source through the local file system.",
-            fields: [
-                {name: "size", value: `${src.length} bytes`}
-            ]
-        })
-
-        return src
-    } catch (e) {
-        logger.error({
-            message: "Could not resolve source file from the local file system.",
-            fields: [
-                {name: "error", value: retrieveErrorMessage(e)},
-                {name: "file", value: strategy.filePath}
-            ]
-        })
-
-        throw e
-    }
 }
 
 async function resolveBasicWeb(strategy: BasicWebResourceResolutionStrategy): Promise<string> {
@@ -106,10 +74,6 @@ export async function resolveSource(strategy: AnySourceResolutionStrategy): Prom
     switch (strategy.kind) {
         case "string":
             return resolveSourceString(strategy);
-
-        case "fs":
-            return resolveFileSystem(strategy);
-
         case "web":
             return resolveBasicWeb(strategy);
     }

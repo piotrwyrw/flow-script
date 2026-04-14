@@ -3,8 +3,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import {randomUUID} from "node:crypto";
-
 export enum LogLevel {
     EVERYTHING = -1,
     TRACE = 1,
@@ -133,7 +131,7 @@ export function TraceCall() {
             const logger = thisArg.logger
 
             const functionName = String(context.name)
-            const callId = randomUUID()
+            const callId = crypto.randomUUID()
             const fields = [{name: "callId", value: callId}]
 
             logger.trace({

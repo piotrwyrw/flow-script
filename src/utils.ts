@@ -15,3 +15,7 @@ export function retrieveErrorMessage(e: any): string {
 
     return "Unknown error"
 }
+
+export function assert(cond: any, msg?: string): asserts cond {
+    if (!cond) throw new Error(msg ?? "assertion failed")
+}
