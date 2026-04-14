@@ -11,24 +11,22 @@ import {type BuiltinFunction, DefaultBuiltinFunctions} from "./builtin-function.
 import {runtimeError} from "../log/error.js";
 
 export class Runtime {
-    private readonly program: AST.Program
     readonly interpreter: Interpreter
     readonly builtinFunctions: BuiltinFunction[]
     scopeTree!: ScopeTree
 
-    constructor(program: AST.Program, builtinFunctions?: BuiltinFunction[]) {
-        this.program = program
+    constructor(builtinFunctions?: BuiltinFunction[]) {
         this.interpreter = new Interpreter(this)
         this.builtinFunctions = builtinFunctions || DefaultBuiltinFunctions
     }
 
-    eraseScopes() {
+    private eraseScopes() {
         this.scopeTree = new ScopeTree(this)
     }
 
-    interpret() {
+    interpret(program: AST.Program) {
         this.eraseScopes()
-        this.program.expressions.forEach(expr => {
+        program.expressions.forEach(expr => {
             try {
                 const result = this.interpreter.evaluate(expr)
                 console.log(JSON.stringify(result))
