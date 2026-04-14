@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import {AST} from "../ast/ast.js";
-import type {TokenType} from "../tokenizer/token-type.js";
+import {AST} from "../ast/ast";
+import type {TokenType} from "../tokenizer/token-type";
 
 export type ParserFunction = () => AST.Expr
 

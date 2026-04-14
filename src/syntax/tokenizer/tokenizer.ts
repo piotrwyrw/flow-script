@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import {TokenMappingStrategies, type TokenMappingStrategy, type TokenType, TokenTypes} from "./token-type.js";
-import {Token} from "./token.js";
-import {tokenizerError} from "../../log/error.js";
+import {TokenMappingStrategies, type TokenMappingStrategy, type TokenType, TokenTypes} from "./token-type";
+import {Token} from "./token";
+import {tokenizerError} from "../../log/error";
 
 type PendingToken = {
     type: TokenType

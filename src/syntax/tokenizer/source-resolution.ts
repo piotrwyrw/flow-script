@@ -4,7 +4,7 @@
  */
 
 import {readFileSync} from "node:fs";
-import {retrieveErrorMessage} from "../../utils.js";
+import {retrieveErrorMessage} from "../../utils";
 
 export type SourceStringResolutionStrategy = {
     kind: "string",

@@ -3,14 +3,14 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import "./runtime/casting/type-cast.js";
+import "./runtime/casting/type-cast";
 
 // Public module exports
-export {type TokenType, TokenTypes} from "./syntax/tokenizer/token-type.js";
-export {Token} from "./syntax/tokenizer/token.js";
-export {Location} from "./syntax/tokenizer/location.js";
-export {Tokenizer} from "./syntax/tokenizer/tokenizer.js";
-export {TokenStream} from "./syntax/tokenizer/token-stream.js";
-export type {AST} from "./syntax/ast/ast.js";
-export {Parser} from "./syntax/parser/parser.js";
-export {Runtime} from "./runtime/runtime.js";
+export {type TokenType, TokenTypes} from "./syntax/tokenizer/token-type";
+export {Token} from "./syntax/tokenizer/token";
+export {Location} from "./syntax/tokenizer/location";
+export {Tokenizer} from "./syntax/tokenizer/tokenizer";
+export {TokenStream} from "./syntax/tokenizer/token-stream";
+export type {AST} from "./syntax/ast/ast";
+export {Parser} from "./syntax/parser/parser";
+export {Runtime} from "./runtime/runtime";

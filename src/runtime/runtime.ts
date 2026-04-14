@@ -3,12 +3,12 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import {AST} from "../syntax/ast/ast.js";
-import {Interpreter} from "./interpreter/interpreter.js";
-import {ScopeTree} from "./scope/scope.js";
-import {BreakSignal, ContinueSignal, ErrorSignal, ReturnSignal} from "./interpreter/control-flow.js";
-import {type BuiltinFunction, DefaultBuiltinFunctions} from "./builtin-function.js";
-import {runtimeError} from "../log/error.js";
+import {AST} from "../syntax/ast/ast";
+import {Interpreter} from "./interpreter/interpreter";
+import {ScopeTree} from "./scope/scope";
+import {BreakSignal, ContinueSignal, ErrorSignal, ReturnSignal} from "./interpreter/control-flow";
+import {type BuiltinFunction, DefaultBuiltinFunctions} from "./builtin-function";
+import {runtimeError} from "../log/error";
 
 export class Runtime {
     readonly interpreter: Interpreter

@@ -3,15 +3,15 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import {Tokenizer} from "./tokenizer.js";
-import {Token} from "./token.js";
-import {Location} from "./location.js";
+import {Tokenizer} from "./tokenizer";
+import {Token} from "./token";
+import {Location} from "./location";
 import {
     type AnySourceResolutionStrategy,
     type RedundantSourceResolutionStrategy,
     resolveSource
-} from "./source-resolution.js";
-import {retrieveErrorMessage} from "../../utils.js";
+} from "./source-resolution";
+import {retrieveErrorMessage} from "../../utils";
 
 export class TokenStream {
     private tokenizer: Tokenizer

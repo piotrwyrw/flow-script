@@ -3,11 +3,11 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import type {Interpreter} from "../interpreter.js";
-import {AST} from "../../../syntax/ast/ast.js";
-import type {AnyValue} from "../../values.js";
-import {BreakSignal, ContinueSignal} from "../control-flow.js";
-import {runtimeError} from "../../../log/error.js";
+import type {Interpreter} from "../interpreter";
+import {AST} from "../../../syntax/ast/ast";
+import type {AnyValue} from "../../values";
+import {BreakSignal, ContinueSignal} from "../control-flow";
+import {runtimeError} from "../../../log/error";
 
 export function evalFor(interpreter: Interpreter, expr: AST.ForExpr): AnyValue {
     const iterable = interpreter.evaluate(expr.iterable)

@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import type {AnyValue} from "./values.js";
-import {castValue} from "./casting/type-cast.js";
+import type {AnyValue} from "./values";
+import {castValue} from "./casting/type-cast";
 
 export type BuiltinFunction = {
     identifier: string,

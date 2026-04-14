@@ -3,11 +3,11 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import type {Interpreter} from "../interpreter.js";
-import {AST} from "../../../syntax/ast/ast.js";
-import {castValue} from "../../casting/type-cast.js";
-import type {AnyValue} from "../../values.js";
-import {BreakSignal, ContinueSignal, ErrorSignal, ReturnSignal} from "../control-flow.js";
+import type {Interpreter} from "../interpreter";
+import {AST} from "../../../syntax/ast/ast";
+import {castValue} from "../../casting/type-cast";
+import type {AnyValue} from "../../values";
+import {BreakSignal, ContinueSignal, ErrorSignal, ReturnSignal} from "../control-flow";
 
 export function evalReturn(interpreter: Interpreter, expr: AST.ReturnExpr): AnyValue {
     let value: AnyValue = {type: "Unit"}

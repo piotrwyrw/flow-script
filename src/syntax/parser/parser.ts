@@ -3,14 +3,14 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import type {TokenStream} from "../tokenizer/token-stream.js";
-import {AST} from "../ast/ast.js";
+import type {TokenStream} from "../tokenizer/token-stream";
+import {AST} from "../ast/ast";
 import assert from "node:assert/strict";
-import {type TokenType, TokenTypes} from "../tokenizer/token-type.js";
-import {type IdentifierToken, Token} from "../tokenizer/token.js";
-import {findFactorParser, type ParserFunction, RegisterParser} from "./parser-registry.js";
-import {type BinaryOperatorDescriptor, BinaryOperatorDescriptors, BinaryOperatorGroups} from "./operators.js";
-import {type Log, type LogField, LogLevel} from "../../log/logger.js";
+import {type TokenType, TokenTypes} from "../tokenizer/token-type";
+import {type IdentifierToken, Token} from "../tokenizer/token";
+import {findFactorParser, type ParserFunction, RegisterParser} from "./parser-registry";
+import {type BinaryOperatorDescriptor, BinaryOperatorDescriptors, BinaryOperatorGroups} from "./operators";
+import {type Log, type LogField, LogLevel} from "../../log/logger";
 
 class SyntaxError {
     log: Log

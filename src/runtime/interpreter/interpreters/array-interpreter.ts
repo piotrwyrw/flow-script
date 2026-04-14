@@ -3,10 +3,10 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import type {Interpreter} from "../interpreter.js";
-import {AST} from "../../../syntax/ast/ast.js";
-import type {AnyValue, ArrayValue} from "../../values.js";
-import {runtimeError} from "../../../log/error.js";
+import type {Interpreter} from "../interpreter";
+import {AST} from "../../../syntax/ast/ast";
+import type {AnyValue, ArrayValue} from "../../values";
+import {runtimeError} from "../../../log/error";
 
 export function evalArray(interpreter: Interpreter, expr: AST.ArrayLiteral): AnyValue {
     const value: AnyValue[] = []

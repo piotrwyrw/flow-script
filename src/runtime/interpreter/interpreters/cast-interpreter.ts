@@ -3,11 +3,11 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import type {Interpreter} from "../interpreter.js";
-import {AST} from "../../../syntax/ast/ast.js";
-import {type AnyValue, typeFromIdentifier} from "../../values.js";
-import {castValue} from "../../casting/type-cast.js";
-import {runtimeError} from "../../../log/error.js";
+import type {Interpreter} from "../interpreter";
+import {AST} from "../../../syntax/ast/ast";
+import {type AnyValue, typeFromIdentifier} from "../../values";
+import {castValue} from "../../casting/type-cast";
+import {runtimeError} from "../../../log/error";
 
 export function evalCast(interpreter: Interpreter, expr: AST.CastExpr): AnyValue {
     const value = interpreter.evaluate(expr.expr)

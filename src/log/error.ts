@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import type {LogField} from "./logger.js";
+import type {LogField} from "./logger";
 
 export function critical(message: string, exceptionMessage: string, fields?: LogField[]): never {
     logger.critical({message, fields: fields || []})

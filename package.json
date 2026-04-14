@@ -2,7 +2,7 @@
   "name": "flow-script",
   "version": "1.0.0",
   "description": "A minimal dynamically-typed scripting language designed for controlling the Flow particle simulator",
-  "main": "dist/index.js",
+  "main": "dist/index",
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",

@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import {type TokenType, TokenTypes} from "./token-type.js";
-import {Location} from "./location.js";
+import {type TokenType, TokenTypes} from "./token-type";
+import {Location} from "./location";
 
 export type IdentifierToken = Token & { type: "Identifier" }
 

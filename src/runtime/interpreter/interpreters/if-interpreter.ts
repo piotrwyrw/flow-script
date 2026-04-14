@@ -3,10 +3,10 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import type {Interpreter} from "../interpreter.js";
-import {AST} from "../../../syntax/ast/ast.js";
-import type {AnyValue} from "../../values.js";
-import {runtimeError} from "../../../log/error.js";
+import type {Interpreter} from "../interpreter";
+import {AST} from "../../../syntax/ast/ast";
+import type {AnyValue} from "../../values";
+import {runtimeError} from "../../../log/error";
 
 export function evalIf(interpreter: Interpreter, expr: AST.IfExpr): AnyValue {
     for (let branch of expr.branches) {

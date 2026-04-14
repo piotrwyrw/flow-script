@@ -3,11 +3,11 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import type {Interpreter} from "../interpreter.js";
-import {AST} from "../../../syntax/ast/ast.js";
-import type {AnyValue, FunctionValue} from "../../values.js";
-import {ReturnSignal} from "../control-flow.js";
-import {runtimeError} from "../../../log/error.js";
+import type {Interpreter} from "../interpreter";
+import {AST} from "../../../syntax/ast/ast";
+import type {AnyValue, FunctionValue} from "../../values";
+import {ReturnSignal} from "../control-flow";
+import {runtimeError} from "../../../log/error";
 import debugFunctionName = AST.debugFunctionName;
 
 export function evalFunctionDefinition(interpreter: Interpreter, expr: AST.FunctionDefExpr): AnyValue {

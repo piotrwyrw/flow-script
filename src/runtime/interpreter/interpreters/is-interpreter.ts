@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import type {Interpreter} from "../interpreter.js";
-import {AST} from "../../../syntax/ast/ast.js";
-import {type AnyValue, typeFromIdentifier} from "../../values.js";
+import type {Interpreter} from "../interpreter";
+import {AST} from "../../../syntax/ast/ast";
+import {type AnyValue, typeFromIdentifier} from "../../values";
 
 export function evalIs(interpreter: Interpreter, expr: AST.IsExpr): AnyValue {
     const value = interpreter.evaluate(expr.expr)

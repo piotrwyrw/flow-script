@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import {AST} from "../../../syntax/ast/ast.js";
-import type {AnyValue} from "../../values.js";
-import type {Interpreter} from "../interpreter.js";
+import {AST} from "../../../syntax/ast/ast";
+import type {AnyValue} from "../../values";
+import type {Interpreter} from "../interpreter";
 
 export function evalAssignment(interpreter: Interpreter, expr: AST.Assignment): AnyValue {
     let newValue = interpreter.evaluate(expr.value)

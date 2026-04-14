@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import {type IdentifierToken, Token} from "../tokenizer/token.js";
-import {Location} from "../tokenizer/location.js";
-import type {AnyValue} from "../../runtime/values.js";
+import {type IdentifierToken, Token} from "../tokenizer/token";
+import {Location} from "../tokenizer/location";
+import type {AnyValue} from "../../runtime/values";
 
 export namespace AST {
     // === Literal Nodes ===

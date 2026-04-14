@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import type {AnyValue} from "../values.js";
+import type {AnyValue} from "../values";
 
 export type RuntimeSymbol = {
     value: AnyValue

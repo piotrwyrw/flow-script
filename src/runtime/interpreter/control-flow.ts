@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import type {AnyValue, StringValue} from "../values.js";
+import type {AnyValue, StringValue} from "../values";
 
 export class ReturnSignal {
     readonly value: AnyValue

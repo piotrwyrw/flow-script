@@ -3,11 +3,11 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import {AST} from "../../../syntax/ast/ast.js";
-import {type AnyValue, type BooleanValue} from "../../values.js";
-import {castValue} from "../../casting/type-cast.js";
-import type {Interpreter} from "../interpreter.js";
-import {runtimeError} from "../../../log/error.js";
+import {AST} from "../../../syntax/ast/ast";
+import {type AnyValue, type BooleanValue} from "../../values";
+import {castValue} from "../../casting/type-cast";
+import type {Interpreter} from "../interpreter";
+import {runtimeError} from "../../../log/error";
 
 type BinaryOpHandler = (l: AnyValue, r: AnyValue) => AnyValue
 

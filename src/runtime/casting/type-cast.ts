@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import type {AnyValue, ArrayValue, BooleanValue, NumberValue, StringValue, UnitValue, VectorValue} from "../values.js";
-import {runtimeError} from "../../log/error.js";
+import type {AnyValue, ArrayValue, BooleanValue, NumberValue, StringValue, UnitValue, VectorValue} from "../values";
+import {runtimeError} from "../../log/error";
 
 type Kind = AnyValue["type"];
 

@@ -3,10 +3,10 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import {AST} from "../syntax/ast/ast.js";
-import type {BuiltinFunction} from "./builtin-function.js";
-import type {Scope} from "./scope/scope.js";
-import type {IdentifierToken} from "../syntax/tokenizer/token.js";
+import {AST} from "../syntax/ast/ast";
+import type {BuiltinFunction} from "./builtin-function";
+import type {Scope} from "./scope/scope";
+import type {IdentifierToken} from "../syntax/tokenizer/token";
 
 export type UnitValue = { type: "Unit" }
 

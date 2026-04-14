@@ -3,12 +3,12 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import {AST} from "../../syntax/ast/ast.js";
-import type {IdentifierToken} from "../../syntax/tokenizer/token.js";
-import type {RuntimeSymbol} from "../symbol/runtime-symbol.js";
-import type {AnyValue} from "../values.js";
-import {type Runtime} from "../runtime.js";
-import {runtimeError} from "../../log/error.js";
+import {AST} from "../../syntax/ast/ast";
+import type {IdentifierToken} from "../../syntax/tokenizer/token";
+import type {RuntimeSymbol} from "../symbol/runtime-symbol";
+import type {AnyValue} from "../values";
+import {type Runtime} from "../runtime";
+import {runtimeError} from "../../log/error";
 
 export type Scope = {
     holder?: AST.Expr,

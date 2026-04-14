@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import {AST} from "../../syntax/ast/ast.js";
-import type {AnyValue} from "../values.js";
+import {AST} from "../../syntax/ast/ast";
+import type {AnyValue} from "../values";
 
 export type AstInterpreter = {
     [T in AST.Expr["kind"]]: (expr: Extract<AST.Expr, { kind: T }>) => AnyValue

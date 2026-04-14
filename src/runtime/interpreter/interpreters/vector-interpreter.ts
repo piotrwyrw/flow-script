@@ -3,10 +3,10 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import {AST} from "../../../syntax/ast/ast.js";
-import type {Interpreter} from "../interpreter.js";
-import type {AnyValue} from "../../values.js";
-import {runtimeError} from "../../../log/error.js";
+import {AST} from "../../../syntax/ast/ast";
+import type {Interpreter} from "../interpreter";
+import type {AnyValue} from "../../values";
+import {runtimeError} from "../../../log/error";
 
 export function evalVectorLiteral(interpreter: Interpreter, expr: AST.VectorLiteral): AnyValue {
     const x = interpreter.evaluate(expr.x)

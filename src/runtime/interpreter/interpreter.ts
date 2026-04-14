@@ -7,21 +7,21 @@
  * Copyright (c) 2026 Piotr Krzysztof Wyrwas [FlowScript]
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
-import type {AstInterpreter} from "./ast-interpreter.js";
-import {Runtime} from "../runtime.js";
-import {AST} from "../../syntax/ast/ast.js";
-import {evalBinaryExpression} from "./interpreters/binary-interpreter.js";
-import {evalAssignment, evalSymbolRef, evalVariableDeclaration} from "./interpreters/symbol-interpreter.js";
-import {evalVectorLiteral} from "./interpreters/vector-interpreter.js";
-import {evalCall, evalFunctionDefinition} from "./interpreters/function-interpreter.js";
-import {evalBreak, evalContinue, evalError, evalReturn} from "./interpreters/control-flow-interpreter.js";
-import {evalBlock} from "./interpreters/block-interpreter.js";
-import {evalIf} from "./interpreters/if-interpreter.js";
-import {evalArray, evalArrayAccess} from "./interpreters/array-interpreter.js";
-import {evalFor, evalWhile} from "./interpreters/loop-interpreter.js";
-import type {AnyValue} from "../values.js";
-import {evalCast} from "./interpreters/cast-interpreter.js";
-import {evalIs} from "./interpreters/is-interpreter.js";
+import type {AstInterpreter} from "./ast-interpreter";
+import {Runtime} from "../runtime";
+import {AST} from "../../syntax/ast/ast";
+import {evalBinaryExpression} from "./interpreters/binary-interpreter";
+import {evalAssignment, evalSymbolRef, evalVariableDeclaration} from "./interpreters/symbol-interpreter";
+import {evalVectorLiteral} from "./interpreters/vector-interpreter";
+import {evalCall, evalFunctionDefinition} from "./interpreters/function-interpreter";
+import {evalBreak, evalContinue, evalError, evalReturn} from "./interpreters/control-flow-interpreter";
+import {evalBlock} from "./interpreters/block-interpreter";
+import {evalIf} from "./interpreters/if-interpreter";
+import {evalArray, evalArrayAccess} from "./interpreters/array-interpreter";
+import {evalFor, evalWhile} from "./interpreters/loop-interpreter";
+import type {AnyValue} from "../values";
+import {evalCast} from "./interpreters/cast-interpreter";
+import {evalIs} from "./interpreters/is-interpreter";
 
 export class Interpreter {
 
