@@ -31,7 +31,7 @@ export class Runtime {
                 const result = this.interpreter.evaluate(expr)
                 console.log(JSON.stringify(result))
             } catch (e) {
-                if (e instanceof ErrorSignal) console.log(`Error: ${e.message}`)
+                if (e instanceof ErrorSignal) runtimeError(e.message)
                 if (e instanceof ReturnSignal) runtimeError("Unexpected 'return' encountered in the global scope.")
                 if (e instanceof ContinueSignal) runtimeError("Unexpected 'continue' encountered in the global scope.")
                 if (e instanceof BreakSignal) runtimeError("Unexpected 'break' encountered in the global scope.")
