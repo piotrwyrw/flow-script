@@ -112,12 +112,16 @@ export class Logger {
 
 const LoggerPropertyName = "logger" as const
 
-Object.defineProperty(globalThis, LoggerPropertyName, {
-    value: Logger.getInstance(),
-    enumerable: false,
-    configurable: false,
-    writable: false
-})
+const propDescriptor = Object.getOwnPropertyDescriptor(globalThis, LoggerPropertyName)
+
+if (!propDescriptor) {
+    Object.defineProperty(globalThis, LoggerPropertyName, {
+        value: Logger.getInstance(),
+        enumerable: false,
+        configurable: false,
+        writable: false
+    })
+}
 
 declare global {
     const logger: Logger
